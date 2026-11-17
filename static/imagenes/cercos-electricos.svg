@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <defs>
+    <linearGradient id="bg-cerco" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#04060A"/>
+      <stop offset="50%" stop-color="#0B132B"/>
+      <stop offset="100%" stop-color="#1C2541"/>
+    </linearGradient>
+    <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#FBBF24"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg-cerco)"/>
+  <line x1="160" y1="90" x2="160" y2="390" stroke="#475569" stroke-width="12" stroke-linecap="round"/>
+  <line x1="400" y1="90" x2="400" y2="390" stroke="#475569" stroke-width="12" stroke-linecap="round"/>
+  <line x1="640" y1="90" x2="640" y2="390" stroke="#475569" stroke-width="12" stroke-linecap="round"/>
+  
+  <line x1="80" y1="130" x2="720" y2="130" stroke="#F59E0B" stroke-width="4" stroke-dasharray="14 6" filter="url(#glow)"/>
+  <line x1="80" y1="180" x2="720" y2="180" stroke="#FBBF24" stroke-width="4" stroke-dasharray="14 6" filter="url(#glow)"/>
+  <line x1="80" y1="230" x2="720" y2="230" stroke="#F59E0B" stroke-width="4" stroke-dasharray="14 6" filter="url(#glow)"/>
+  <line x1="80" y1="280" x2="720" y2="280" stroke="#FBBF24" stroke-width="4" stroke-dasharray="14 6" filter="url(#glow)"/>
+  
+  <circle cx="400" cy="205" r="75" fill="#0B132B" stroke="#F59E0B" stroke-width="4" filter="url(#glow)"/>
+  <polygon points="415,145 365,215 410,215 390,270 440,195 395,195" fill="url(#gold-grad)" filter="url(#glow)"/>
+  
+  <rect x="230" y="325" width="340" height="55" rx="12" fill="#B91C1C" stroke="#F59E0B" stroke-width="3"/>
+  <text x="400" y="360" fill="#FFFFFF" font-family="'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" letter-spacing="2">CERCO ELÉCTRICO 10.000V</text>
+</svg>

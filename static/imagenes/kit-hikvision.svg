@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <defs>
+    <linearGradient id="bg-kit" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#04060A"/>
+      <stop offset="50%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0B132B"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg-kit)"/>
+  
+  <!-- 4 Cámaras Representadas -->
+  <circle cx="230" cy="140" r="42" fill="#0F172A" stroke="#38BDF8" stroke-width="3"/>
+  <circle cx="340" cy="140" r="42" fill="#0F172A" stroke="#38BDF8" stroke-width="3"/>
+  <circle cx="450" cy="140" r="42" fill="#0F172A" stroke="#38BDF8" stroke-width="3"/>
+  <circle cx="560" cy="140" r="42" fill="#0F172A" stroke="#38BDF8" stroke-width="3"/>
+  
+  <!-- DVR Grabador y Disco -->
+  <rect x="220" y="215" width="350" height="70" rx="10" fill="#0F172A" stroke="#64748B" stroke-width="4"/>
+  <circle cx="260" cy="250" r="8" fill="#22C55E"/>
+  <circle cx="285" cy="250" r="8" fill="#38BDF8"/>
+  <circle cx="310" cy="250" r="8" fill="#F59E0B"/>
+  <rect x="420" y="240" width="120" height="20" rx="4" fill="#334155"/>
+  <text x="480" y="255" fill="#FFFFFF" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="bold" text-anchor="middle">DISCO 1TB</text>
+  
+  <rect x="220" y="325" width="350" height="50" rx="25" fill="#B91C1C" stroke="#F59E0B" stroke-width="2"/>
+  <text x="395" y="357" fill="#FFFFFF" font-family="'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" letter-spacing="1">KIT 4 CÁMARAS COLORVU + DVR</text>
+</svg>

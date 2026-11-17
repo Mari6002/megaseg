@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <defs>
+    <linearGradient id="bg-auto" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#04060A"/>
+      <stop offset="50%" stop-color="#1E1B4B"/>
+      <stop offset="100%" stop-color="#312E81"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg-auto)"/>
+  
+  <!-- Portón Metálico -->
+  <rect x="180" y="100" width="440" height="200" rx="10" fill="#0F172A" stroke="#475569" stroke-width="6"/>
+  <line x1="240" y1="100" x2="240" y2="300" stroke="#334155" stroke-width="4"/>
+  <line x1="300" y1="100" x2="300" y2="300" stroke="#334155" stroke-width="4"/>
+  <line x1="360" y1="100" x2="360" y2="300" stroke="#334155" stroke-width="4"/>
+  <line x1="420" y1="100" x2="420" y2="300" stroke="#334155" stroke-width="4"/>
+  <line x1="480" y1="100" x2="480" y2="300" stroke="#334155" stroke-width="4"/>
+  <line x1="540" y1="100" x2="540" y2="300" stroke="#334155" stroke-width="4"/>
+  <line x1="600" y1="100" x2="600" y2="300" stroke="#334155" stroke-width="4"/>
+  
+  <!-- Motor Automatizado y Engranaje -->
+  <rect x="140" y="230" width="80" height="70" rx="8" fill="#F59E0B" stroke="#FFFFFF" stroke-width="2"/>
+  <circle cx="180" cy="265" r="16" fill="#04060A"/>
+  
+  <!-- Flechas de Apertura Automática -->
+  <polygon points="340,190 380,165 380,215" fill="#38BDF8"/>
+  <polygon points="460,190 420,165 420,215" fill="#38BDF8"/>
+  
+  <rect x="230" y="335" width="340" height="50" rx="25" fill="#4338CA" stroke="#818CF8" stroke-width="2"/>
+  <text x="400" y="367" fill="#FFFFFF" font-family="'Segoe UI', Roboto, sans-serif" font-size="17" font-weight="bold" text-anchor="middle" letter-spacing="1">MOTORES &amp; AUTOMATIZACIÓN</text>
+</svg>

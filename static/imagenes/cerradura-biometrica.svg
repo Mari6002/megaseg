@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <defs>
+    <linearGradient id="bg-lock" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#04060A"/>
+      <stop offset="50%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg-lock)"/>
+  
+  <!-- Cuerpo de Cerradura Digital -->
+  <rect x="330" y="60" width="140" height="260" rx="24" fill="#0F172A" stroke="#38BDF8" stroke-width="4"/>
+  
+  <!-- Sensor de Huella Digital Iluminado -->
+  <circle cx="400" cy="115" r="30" fill="#04060A" stroke="#22C55E" stroke-width="3"/>
+  <path d="M 390,115 C 390,105 410,105 410,115 C 410,122 395,125 395,130" fill="none" stroke="#22C55E" stroke-width="2.5"/>
+  <path d="M 384,115 C 384,98 416,98 416,115" fill="none" stroke="#22C55E" stroke-width="2"/>
+  
+  <!-- Teclado Táctil Luminoso -->
+  <g fill="#38BDF8" opacity="0.8">
+    <circle cx="365" cy="170" r="5"/><circle cx="400" cy="170" r="5"/><circle cx="435" cy="170" r="5"/>
+    <circle cx="365" cy="195" r="5"/><circle cx="400" cy="195" r="5"/><circle cx="435" cy="195" r="5"/>
+    <circle cx="365" cy="220" r="5"/><circle cx="400" cy="220" r="5"/><circle cx="435" cy="220" r="5"/>
+  </g>
+  
+  <!-- Manija de Apertura -->
+  <rect x="250" y="245" width="120" height="25" rx="10" fill="#334155" stroke="#64748B" stroke-width="2"/>
+  
+  <rect x="220" y="345" width="360" height="50" rx="25" fill="#0284C7" stroke="#38BDF8" stroke-width="2"/>
+  <text x="400" y="377" fill="#FFFFFF" font-family="'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" letter-spacing="1">CERRADURA BIOMÉTRICA INTELIGENTE</text>
+</svg>

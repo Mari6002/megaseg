@@ -1,0 +1,536 @@
+{% extends "base.html" %}
+
+{% block titulo %}Inicio - Grupo de Seguridad Megaseg Cía. Ltda.{% endblock %}
+
+{% block content %}
+
+<!-- ==============================================================================
+     SECCIÓN 1: HERO BANNER DE ALTO IMPACTO (PORTADA PRINCIPAL)
+     ============================================================================== -->
+<section id="inicio" class="hero-megaseg text-white position-relative d-flex align-items-center">
+    <div class="hero-overlay"></div>
+    <div class="container position-relative py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-8 col-md-10">
+                <span class="badge bg-danger-subtle text-danger-emphasis px-3 py-2 text-uppercase fw-bold mb-3 border border-danger rounded-pill">
+                    <span class="status-pulse-dot me-1"></span> Empresa Legalmente Constituida · Lago Agrio, Ecuador
+                </span>
+                <h1 class="display-4 fw-extrabold mb-3 text-white">
+                    Protección y Vigilancia Confiable para su <span class="text-warning">Tranquilidad</span>
+                </h1>
+                <p class="lead text-light-muted mb-4 pe-lg-4" style="font-size: 1.15rem; line-height: 1.7;">
+                    Más de 10 años de liderazgo en seguridad física, electrónica, videovigilancia CCTV en tiempo real, alarmas perimetrales y rastreo satelital GPS en Lago Agrio y toda la provincia de Sucumbíos.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="https://wa.me/593982900705?text=Hola%20Grupo%20Megaseg,%20quisiera%20solicitar%20asesor%C3%ADa%20y%20cotizaci%C3%B3n" 
+                       target="_blank" rel="noopener noreferrer" class="btn btn-verde btn-lg shadow-sm">
+                        <i class="bi bi-whatsapp me-2"></i>Cotiza por WhatsApp
+                    </a>
+                    <a href="{{ url_for('servicios') }}" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-grid-3x3-gap-fill me-2"></i>Ver Catálogo Completo
+                    </a>
+                    {% if current_user.is_authenticated and current_user.is_admin() %}
+                    <a href="{{ url_for('nuevo_servicio') }}" class="btn btn-warning btn-lg text-dark fw-bold">
+                        <i class="bi bi-plus-circle-fill me-2"></i>Publicar Servicio / Producto
+                    </a>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex gap-4 mt-4 pt-2 flex-wrap">
+                    <div class="d-flex align-items-center gap-2 small text-light">
+                        <i class="bi bi-patch-check-fill text-warning fs-5"></i> Permisos al día
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small text-light">
+                        <i class="bi bi-shield-lock-fill text-warning fs-5"></i> Monitoreo 24/7/365
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small text-light">
+                        <i class="bi bi-geo-alt-fill text-warning fs-5"></i> Cobertura en Sucumbíos
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==============================================================================
+     SECCIÓN 2: BARRA DE MÉTRICAS & ESTADÍSTICAS
+     ============================================================================== -->
+<section class="stats-banner py-4 bg-dark border-top border-bottom border-secondary">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-md-3 col-6 border-end-md">
+                <div class="display-6 fw-bold text-white mb-1">+10 <span class="text-warning">Años</span></div>
+                <small class="text-muted text-uppercase fw-semibold">De Trayectoria</small>
+            </div>
+            <div class="col-md-3 col-6 border-end-md">
+                <div class="display-6 fw-bold text-white mb-1">+1,500 <span class="text-warning">+</span></div>
+                <small class="text-muted text-uppercase fw-semibold">Clientes Protegidos</small>
+            </div>
+            <div class="col-md-3 col-6 border-end-md">
+                <div class="display-6 fw-bold text-white mb-1">24/7 <span class="text-danger">Activo</span></div>
+                <small class="text-muted text-uppercase fw-semibold">Monitoreo & Reacción</small>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="display-6 fw-bold text-white mb-1">100% <span class="text-success">Legal</span></div>
+                <small class="text-muted text-uppercase fw-semibold">Personal Acreditado</small>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==============================================================================
+     SECCIÓN 3: ¿QUIÉNES SOMOS? 
+     ============================================================================== -->
+<section id="quienes-somos" class="py-5 bg-navy-light text-white">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-5 col-md-6">
+                <div class="position-relative">
+                    <img src="{{ url_for('static', filename='imagenes/nosotros.jpg') }}" 
+                         alt="Instalaciones y equipo de Grupo Megaseg" 
+                         class="img-fluid rounded-4 shadow-lg w-100 object-fit-cover border border-secondary" 
+                         style="min-height: 380px;">
+                    <div class="experience-card-floating shadow">
+                        <i class="bi bi-shield-check text-warning fs-1"></i>
+                        <div>
+                            <div class="fw-bold text-white h5 mb-0">+10 Años</div>
+                            <small class="text-muted">Protegiendo la Amazonía</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <article class="col-lg-7 col-md-6">
+                <span class="badge bg-danger text-white mb-2 px-3 py-1 text-uppercase fw-semibold">Nuestra Compañía</span>
+                <h2 class="display-6 fw-bold text-white mb-3">¿Quiénes Somos?</h2>
+                <p class="lead text-light">
+                    En <strong>Grupo de Seguridad Megaseg Cía. Ltda.</strong>, nos dedicamos a ofrecer soluciones integrales de seguridad para hogares, negocios y empresas en Lago Agrio y toda la provincia de Sucumbíos.
+                </p>
+                <p class="text-muted">
+                    Nuestros servicios incluyen la venta, instalación y monitoreo de sistemas de seguridad electrónica, así como servicios de guardianía privada física acreditada y automatización domótica para garantizar la protección absoluta de su entorno.
+                </p>
+                
+                <div class="row g-3 mt-3">
+                    <div class="col-sm-6">
+                        <div class="p-3 bg-dark rounded-3 border-start border-4 border-danger">
+                            <small class="text-muted d-block fw-semibold">Sede Principal</small>
+                            <span class="fw-bold text-white"><i class="bi bi-geo-alt-fill text-danger me-1"></i>Nueva Loja (Lago Agrio)</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 bg-dark rounded-3 border-start border-4 border-warning">
+                            <small class="text-muted d-block fw-semibold">Ámbito Operativo</small>
+                            <span class="fw-bold text-white"><i class="bi bi-shield-fill-check text-warning me-1"></i>Física, Electrónica y Satelital</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón Desplegable Ver Más Información Institucional -->
+                <div class="mt-4">
+                    <button type="button" 
+                            class="btn btn-toggle-detalle" 
+                            data-bs-toggle="collapse" 
+                            data-bs-target="#detalle-nosotros" 
+                            aria-expanded="false" 
+                            aria-controls="detalle-nosotros"
+                            data-texto-original="Ver más trayectoria y acreditaciones">
+                        <i class="bi bi-patch-check-fill me-1"></i>
+                        <span class="btn-text">Ver más trayectoria y acreditaciones</span>
+                        <i class="bi bi-chevron-down ms-1 toggle-icon"></i>
+                    </button>
+                    
+                    <div class="collapse mt-3" id="detalle-nosotros">
+                        <div class="p-3 bg-dark rounded-4 border border-secondary text-light-muted">
+                            <h4 class="h6 fw-bold text-warning mb-2"><i class="bi bi-shield-lock-fill me-1"></i>Acreditación & Respaldo Oficial en Ecuador:</h4>
+                            <p class="small mb-2 text-body-readable">
+                                <strong>Grupo de Seguridad Megaseg Cía. Ltda.</strong> opera con autorización legal y permisos vigentes ante los organismos reguladores de seguridad privada del Ecuador. Nuestro personal es rigurosamente evaluado con pruebas psicotécnicas, toxicológicas y antecedentes penales certificados.
+                            </p>
+                            <div class="row g-2 mt-2">
+                                <div class="col-sm-6">
+                                    <div class="p-2 bg-navy-light rounded-3 border border-secondary small">
+                                        <i class="bi bi-check2-circle text-success me-1"></i><strong class="text-white">Armamento Acreditado:</strong> Dotación homologada bajo estricto control de ley.
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="p-2 bg-navy-light rounded-3 border border-secondary small">
+                                        <i class="bi bi-check2-circle text-success me-1"></i><strong class="text-white">Patrullaje Móvil:</strong> Rondas preventivas y auxilio táctico inmediato en Lago Agrio.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<!-- ==============================================================================
+     SECCIÓN 4: MISIÓN Y VISIÓN
+     ============================================================================== -->
+<section id="mision-vision" class="py-5 bg-dark">
+    <div class="container">
+        <div class="text-center mb-4">
+            <span class="badge bg-warning-subtle text-warning-emphasis px-3 py-2 rounded-pill text-uppercase fw-semibold mb-2">Pilares Estratégicos</span>
+            <h2 class="fw-bold text-white">Misión & Visión</h2>
+            <p class="text-muted">El compromiso ético y operativo que guía nuestras operaciones cada día.</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Misión -->
+            <div class="col-md-6">
+                <div class="card h-100 shadow border-0 rounded-4 p-4 bg-navy-light text-white border-top border-4 border-danger">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="icon-circle bg-danger text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                            <i class="bi bi-bullseye fs-4"></i>
+                        </div>
+                        <h3 class="h4 fw-bold mb-0">Misión</h3>
+                    </div>
+                    <p class="text-light-muted mb-0">
+                        {{ empresa.mision or 'Proveer servicios de seguridad física y tecnológica con los más altos estándares de calidad, garantizando la custodia eficaz de personas, bienes e instalaciones en Sucumbíos con personal acreditado y tecnología de vanguardia.' }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Visión -->
+            <div class="col-md-6">
+                <div class="card h-100 shadow border-0 rounded-4 p-4 bg-navy-light text-white border-top border-4 border-warning">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="icon-circle bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                            <i class="bi bi-eye-fill fs-4"></i>
+                        </div>
+                        <h3 class="h4 fw-bold mb-0">Visión</h3>
+                    </div>
+                    <p class="text-light-muted mb-0">
+                        {{ empresa.vision or 'Ser la empresa referente de seguridad privada e innovación electrónica en la región oriental del Ecuador, reconocida por la excelencia operativa, rapidez de respuesta y confiabilidad inquebrantable de nuestras soluciones.' }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==============================================================================
+     SECCIÓN 5: SERVICIOS Y PRODUCTOS DESTACADOS
+     ============================================================================== -->
+<section id="servicios-destacados" class="py-5 bg-navy-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+            <div>
+                <span class="badge bg-danger px-3 py-1 text-uppercase fw-semibold mb-2">Portafolio Profesional</span>
+                <h2 class="display-6 fw-bold text-white mb-0">Servicios & Equipos Destacados</h2>
+                <p class="text-muted mb-0">Soluciones activas listas para instalación inmediata y cotización en línea.</p>
+            </div>
+            <a href="{{ url_for('servicios') }}" class="btn btn-outline-warning rounded-pill">
+                Ver Catálogo Completo <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            {% for s in servicios_destacados %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 service-card shadow border-0 rounded-4 bg-dark text-white d-flex flex-column overflow-hidden">
+                    <div class="card-img-wrapper position-relative">
+                        <img src="{{ s.imagen or url_for('static', filename='imagenes/guardia-megaseg.jpg') }}" 
+                             alt="{{ s.nombre }}" 
+                             class="w-100 h-100 object-fit-cover"
+                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='imagenes/guardia-megaseg.jpg') }}';">
+                        <div class="price-tag">
+                            {% if s.precio_base and s.precio_base > 0 %}
+                                ${{ "%.2f"|format(s.precio_base) }} <span>USD</span>
+                            {% else %}
+                                <span>A Cotizar</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-secondary text-white">{{ s.tipo_nombre }}</span>
+                            {% if s.disponible %}
+                                <span class="badge bg-success-subtle text-success border border-success"><i class="bi bi-check-circle-fill me-1"></i>Disponible</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Próximamente</span>
+                            {% endif %}
+                        </div>
+                        <h3 class="h5 fw-bold text-white my-2">{{ s.nombre }}</h3>
+                        <p class="text-muted small flex-grow-1 mb-2">{{ s.descripcion }}</p>
+                        
+                        <!-- Botón Ver Más / Ver Menos Detalles -->
+                        <div class="my-2">
+                            <button type="button" 
+                                    class="btn btn-toggle-detalle w-100" 
+                                    data-bs-toggle="collapse" 
+                                    data-bs-target="#detalle-home-{{ s.id }}" 
+                                    aria-expanded="false" 
+                                    aria-controls="detalle-home-{{ s.id }}"
+                                    data-texto-original="Ver más detalles">
+                                <i class="bi bi-info-circle me-1"></i>
+                                <span class="btn-text">Ver más detalles</span>
+                                <i class="bi bi-chevron-down ms-1 toggle-icon"></i>
+                            </button>
+                        </div>
+
+                        <!-- Ficha Técnica Desplegable -->
+                        <div class="collapse" id="detalle-home-{{ s.id }}">
+                            <div class="detalle-expandible-box text-start mb-3">
+                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-secondary">
+                                    <span class="badge bg-warning text-dark fw-bold" style="font-size: 0.72rem;">
+                                        <i class="bi bi-shield-check me-1"></i>Ficha Técnica
+                                    </span>
+                                    <span class="small text-light-muted fw-semibold">
+                                        {{ 'Producto Físico' if s.es_producto else 'Servicio Activo' }}
+                                    </span>
+                                </div>
+                                <div class="detalle-item">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <div>
+                                        <strong class="text-white d-block">Garantía Técnica:</strong>
+                                        <span class="text-light-muted">Respaldo oficial con técnicos acreditados en Lago Agrio.</span>
+                                    </div>
+                                </div>
+                                <div class="detalle-item mb-0">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                    <div>
+                                        <strong class="text-white d-block">Cobertura Sucumbíos:</strong>
+                                        <span class="text-light-muted">Instalación y soporte en Lago Agrio, Shushufindi y cantones aledaños.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-3 border-top border-secondary mt-auto">
+                            <a href="https://wa.me/593982900705?text=Hola%20Grupo%20Megaseg,%20quisiera%20cotizar:%20{{ s.nombre|urlencode }}" 
+                               target="_blank" rel="noopener noreferrer" 
+                               class="btn btn-verde btn-sm rounded-pill w-100">
+                                <i class="bi bi-whatsapp me-1"></i>Cotizar por WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- ==============================================================================
+     SECCIÓN 6: ¿POR QUÉ ELEGIR MEGASEG? (VENTAJAS DIFERENCIALES)
+     ============================================================================== -->
+<section id="beneficios" class="py-5 bg-dark text-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge bg-warning text-dark px-3 py-1 text-uppercase fw-semibold mb-2">Respaldo Integral</span>
+            <h2 class="display-6 fw-bold">¿Por Qué Confiar en Grupo Megaseg?</h2>
+            <p class="text-muted mx-auto" style="max-width: 650px;">
+                Diseñamos esquemas que combinan disuasión activa, intervención táctica y supervisión en tiempo real con respaldo técnico local en Lago Agrio.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4 col-sm-6">
+                <div class="p-4 bg-navy-light rounded-4 h-100 border border-secondary shadow-sm">
+                    <div class="icon-circle bg-danger text-white rounded-3 mb-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-patch-check-fill fs-4"></i>
+                    </div>
+                    <h3 class="h5 fw-bold text-white mb-2">Empresa 100% Legal</h3>
+                    <p class="text-muted small mb-0">RUC activo, registro mercantil formal y cumplimiento estricto de las regulaciones del Ministerio rector en Ecuador.</p>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+                <div class="p-4 bg-navy-light rounded-4 h-100 border border-secondary shadow-sm">
+                    <div class="icon-circle bg-warning text-dark rounded-3 mb-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-broadcast fs-4"></i>
+                    </div>
+                    <h3 class="h5 fw-bold text-white mb-2">Central de Monitoreo Propia</h3>
+                    <p class="text-muted small mb-0">No tercerizamos. Disponemos de operadores capacitados en Lago Agrio supervisando señales de alarma 24 horas.</p>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+                <div class="p-4 bg-navy-light rounded-4 h-100 border border-secondary shadow-sm">
+                    <div class="icon-circle bg-success text-white rounded-3 mb-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-megaphone-fill fs-4"></i>
+                    </div>
+                    <h3 class="h5 fw-bold text-white mb-2">Audio Disuasión en Vivo</h3>
+                    <p class="text-muted small mb-0">Nuestra central habla directamente a través de altavoces exteriores para ahuyentar sospechosos antes de un delito.</p>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+                <div class="p-4 bg-navy-light rounded-4 h-100 border border-secondary shadow-sm">
+                    <div class="icon-circle bg-info text-white rounded-3 mb-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-phone-fill fs-4"></i>
+                    </div>
+                    <h3 class="h5 fw-bold text-white mb-2">Control en tu Celular</h3>
+                    <p class="text-muted small mb-0">Visualiza tus cámaras en vivo, recibe alertas y monitorea tus cercos perimetrales desde cualquier lugar del mundo.</p>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+                <div class="p-4 bg-navy-light rounded-4 h-100 border border-secondary shadow-sm">
+                    <div class="icon-circle bg-danger text-white rounded-3 mb-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-tools fs-4"></i>
+                    </div>
+                    <h3 class="h5 fw-bold text-white mb-2">Soporte Local Inmediato</h3>
+                    <p class="text-muted small mb-0">Técnicos residentes en Sucumbíos para realizar mantenimientos e instalaciones sin demoras de traslado.</p>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+                <div class="p-4 bg-navy-light rounded-4 h-100 border border-secondary shadow-sm">
+                    <div class="icon-circle bg-warning text-dark rounded-3 mb-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-sliders fs-4"></i>
+                    </div>
+                    <h3 class="h5 fw-bold text-white mb-2">Soluciones a la Medida</h3>
+                    <p class="text-muted small mb-0">Asesoramos a hogares, condominios, comercios, plantas agroindustriales y campamentos petroleros.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==============================================================================
+     SECCIÓN 7: COTIZADOR INTERACTIVO ONLINE
+     ============================================================================== -->
+<section id="solicitudes" class="py-5 bg-navy-light text-white">
+    <div class="container">
+        <div class="card bg-dark border border-secondary rounded-4 p-4 p-md-5 shadow-lg mx-auto" style="max-width: 920px;">
+            <div class="text-center mb-4">
+                <span class="badge bg-danger px-3 py-1 text-uppercase fw-semibold mb-2">Cotización Inmediata</span>
+                <h2 class="h3 fw-bold text-white">Solicita tu Asesoría Personalizada</h2>
+                <p class="text-muted small">Selecciona lo que deseas proteger y te enviaremos una propuesta formal directa a tu WhatsApp.</p>
+            </div>
+
+            <form id="formCotizadorWeb">
+                <div class="row g-4">
+                    <div class="col-md-6 border-end-md">
+                        <label class="form-label fw-bold text-warning small text-uppercase">1. Tipo de Inmueble / Instalación</label>
+                        <div class="d-flex flex-column gap-2 mb-3">
+                            <label class="btn btn-outline-secondary text-start text-white p-2 d-flex align-items-center gap-2">
+                                <input type="radio" name="cotiz_tipo" value="Hogar / Residencia" checked>
+                                <i class="bi bi-house-door-fill text-warning"></i> Hogar / Residencia
+                            </label>
+                            <label class="btn btn-outline-secondary text-start text-white p-2 d-flex align-items-center gap-2">
+                                <input type="radio" name="cotiz_tipo" value="Comercio / Negocio">
+                                <i class="bi bi-shop text-warning"></i> Comercio / Negocio
+                            </label>
+                            <label class="btn btn-outline-secondary text-start text-white p-2 d-flex align-items-center gap-2">
+                                <input type="radio" name="cotiz_tipo" value="Empresa / Industria">
+                                <i class="bi bi-building text-warning"></i> Empresa / Industria / Bodega
+                            </label>
+                            <label class="btn btn-outline-secondary text-start text-white p-2 d-flex align-items-center gap-2">
+                                <input type="radio" name="cotiz_tipo" value="Vehicular / Finca">
+                                <i class="bi bi-truck text-warning"></i> Vehículos / Finca
+                            </label>
+                        </div>
+
+                        <label class="form-label fw-bold text-warning small text-uppercase">2. Servicios Requeridos</label>
+                        <div class="d-flex flex-column gap-2">
+                            <label class="small text-light d-flex align-items-center gap-2">
+                                <input type="checkbox" name="cotiz_serv" value="Cámaras CCTV" checked> Cámaras de Seguridad CCTV & IP
+                            </label>
+                            <label class="small text-light d-flex align-items-center gap-2">
+                                <input type="checkbox" name="cotiz_serv" value="Cerco Eléctrico y Alarmas"> Alarmas y Cercos Eléctricos Perimetrales
+                            </label>
+                            <label class="small text-light d-flex align-items-center gap-2">
+                                <input type="checkbox" name="cotiz_serv" value="Guardianía Privada"> Guardianía Privada Física Acreditada
+                            </label>
+                            <label class="small text-light d-flex align-items-center gap-2">
+                                <input type="checkbox" name="cotiz_serv" value="Rastreo Satelital GPS"> Rastreo Satelital GPS de Vehículos
+                            </label>
+                            <label class="small text-light d-flex align-items-center gap-2">
+                                <input type="checkbox" name="cotiz_serv" value="Automatización"> Automatización de Portones y Control de Acceso
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 d-flex flex-column justify-content-between">
+                        <div>
+                            <label class="form-label fw-bold text-warning small text-uppercase">3. Datos de Contacto</label>
+                            <div class="mb-3">
+                                <input type="text" id="cotiz_nombre" class="form-control bg-secondary text-white border-0" placeholder="Nombre completo o Empresa *" required>
+                            </div>
+                            <div class="mb-3">
+                                <input type="tel" id="cotiz_telefono" class="form-control bg-secondary text-white border-0" placeholder="Teléfono / WhatsApp *" required>
+                            </div>
+                            <div class="mb-3">
+                                <input type="text" id="cotiz_ciudad" class="form-control bg-secondary text-white border-0" placeholder="Ciudad o Sector (ej. Lago Agrio, Centro)">
+                            </div>
+                            <div class="mb-3">
+                                <textarea id="cotiz_mensaje" rows="3" class="form-control bg-secondary text-white border-0" placeholder="Detalles adicionales (cantidad de cámaras, metros de cerco...)"></textarea>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-verde btn-lg w-100 rounded-pill shadow-sm mt-3">
+                            <i class="bi bi-whatsapp me-2"></i>Enviar Cotización a WhatsApp
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- ==============================================================================
+     SECCIÓN 8: CONTACTO & UBICACIÓN EN LAGO AGRIO
+     ============================================================================== -->
+<section id="contacto" class="py-5 bg-dark text-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge bg-danger px-3 py-1 text-uppercase fw-semibold mb-2">Canales Oficiales</span>
+            <h2 class="display-6 fw-bold">Estamos Listos para Atenderte</h2>
+            <p class="text-muted">Visítanos en nuestra oficina en Lago Agrio o contáctanos por WhatsApp y llamadas.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <div class="p-4 bg-navy-light rounded-4 border border-secondary mb-3">
+                    <h3 class="h5 fw-bold text-warning mb-3">Información Central</h3>
+                    <ul class="list-unstyled text-muted small d-flex flex-column gap-3 mb-0">
+                        <li class="d-flex align-items-start gap-2">
+                            <i class="bi bi-geo-alt-fill text-danger fs-5 mt-1"></i>
+                            <div>
+                                <strong class="text-white d-block">Dirección Oficial:</strong>
+                                Calle José María Urbina y Tungurahua, Ref: A 3 cuadras del Hospital del IESS, Barrio: Las Garzas.
+                                <p>Lago Agrio, Provincia de Sucumbíos, Ecuador.</p>
+                            </div>
+                        </li>
+                        <li class="d-flex align-items-start gap-2">
+                            <i class="bi bi-telephone-fill text-success fs-5 mt-1"></i>
+                            <div>
+                                <strong class="text-white d-block">Teléfonos de Emergencia:</strong>
+                                +593 98 290 0705 / (06) 283-0000
+                            </div>
+                        </li>
+                        <li class="d-flex align-items-start gap-2">
+                            <i class="bi bi-clock-fill text-warning fs-5 mt-1"></i>
+                            <div>
+                                <strong class="text-white d-block">Horarios de Atención:</strong>
+                                Central 24 Horas / 365 Días al año.<br>Oficina: Lunes a Sábado de 8:00 AM a 6:00 PM.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="p-3 bg-navy-light rounded-4 border border-secondary d-flex align-items-center justify-content-between">
+                    <div>
+                        <strong class="text-white d-block">Síguenos en Facebook:</strong>
+                        <small class="text-muted">fb.com/megaseg.ec</small>
+                    </div>
+                    <a href="https://www.facebook.com/megaseg.ec/" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light btn-sm rounded-pill">
+                        <i class="bi bi-facebook me-1"></i>Visitar
+                    </a>
+                </div>
+            </div>
+
+            <!-- Mapa de Lago Agrio -->
+            <div class="col-lg-7">
+                <div class="rounded-4 overflow-hidden border border-secondary shadow h-100" style="min-height: 320px;">
+                    <iframe 
+                        title="Mapa de Grupo Megaseg en Lago Agrio"
+                        src="https://www.google.com/maps/embed?pb=!1m17!1m11!1m3!1d552.4309998132126!2d-76.90223623903357!3d0.09069528448172166!2m2!1f0!2f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e28239927c7a8ff%3A0xd6195f4005f039b0!2sGRUPO%20DE%20SEGURIDAD%20MEGASEG%20-%20C%C3%A1maras%20y%20Alarmas%20de%20Seguridad%20en%20Lago%20Agrio%20Ecuador!5e1!3m2!1ses-419!2sec!4v1794938178346!5m2!1ses-419!2sec" 
+                        width="100%" height="100%" style="min-height: 320px; border:0;" allowfullscreen="" loading="lazy">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

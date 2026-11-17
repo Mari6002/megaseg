@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block titulo %}{{ 'Editar Servicio o Producto' if editando else 'Nuevo Servicio o Producto' }} - Grupo Megaseg{% endblock %}
+
+{% block content %}
+<!-- ==============================================================================
+     ENCABEZADO DE PÁGINA: FORMULARIO
+     ============================================================================== -->
+<section class="page-header py-4 bg-darker text-white border-bottom border-secondary">
+    <div class="container text-center">
+        <h1 class="h3 fw-bold mb-1">{{ 'Editar Publicación' if editando else 'Nuevo Servicio o Producto' }}</h1>
+        <p class="text-light-muted small mb-0">
+            {{ 'Modifica la información, tarifas y disponibilidad en el catálogo' if editando else 'Ingresa los detalles para publicar un nuevo servicio o equipo de seguridad en la web' }}
+        </p>
+    </div>
+</section>
+
+<!-- ==============================================================================
+     FORMULARIO CON FLASK-WTF (PROTECCIÓN CSRF Y VALIDACIONES)
+     ============================================================================== -->
+<section class="py-5 bg-dark">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-7 col-md-9">
+                <div class="card form-card shadow border border-secondary rounded-4 bg-navy-light text-white overflow-hidden">
+                    <div class="card-header bg-dark p-4 border-bottom border-secondary">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-circle bg-danger text-white rounded-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <i class="bi {{ 'bi-pencil-square' if editando else 'bi-plus-square-fill' }} fs-4"></i>
+                            </div>
+                            <div>
+                                <h2 class="h5 fw-bold text-white mb-0">{{ 'Modificar Datos' if editando else 'Registrar Publicación' }}</h2>
+                                <small class="text-muted">Gestión comercial para Grupo Megaseg Cía. Ltda.</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <form method="POST" enctype="multipart/form-data" novalidate>
+                            <!-- Token de protección CSRF generado por Flask-WTF -->
+                            {{ form.hidden_tag() }}
+
+                            <!-- 1. Tipo de Publicación (Servicio vs Producto) -->
+                            <div class="mb-3">
+                                {{ form.es_producto.label(class="form-label fw-semibold text-warning small") }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-dark border-secondary text-warning"><i class="bi bi-tag-fill"></i></span>
+                                    {{ form.es_producto(class="form-select bg-dark text-white border-secondary") }}
+                                </div>
+                            </div>
+
+                            <!-- 2. Categoría -->
+                            <div class="mb-3">
+                                {{ form.tipo_servicio_id.label(class="form-label fw-semibold text-warning small") }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-dark border-secondary text-warning"><i class="bi bi-collection-fill"></i></span>
+                                    <select name="{{ form.tipo_servicio_id.name }}" id="{{ form.tipo_servicio_id.id }}" class="form-select bg-dark text-white border-secondary{{ ' is-invalid' if form.tipo_servicio_id.errors else '' }}">
+                                        {% for value, label in form.tipo_servicio_id.choices %}
+                                        <option value="{{ value }}" {% if form.tipo_servicio_id.data == value %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                {% for error in form.tipo_servicio_id.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- 3. Nombre -->
+                            <div class="mb-3">
+                                {{ form.nombre.label(class="form-label fw-semibold text-warning small") }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-dark border-secondary text-warning"><i class="bi bi-card-heading"></i></span>
+                                    {{ form.nombre(class="form-control bg-dark text-white border-secondary" + (" is-invalid" if form.nombre.errors else ""), placeholder="Ej: Kit 4 Cámaras Hikvision ColorVu HD", autocomplete="off") }}
+                                </div>
+                                {% for error in form.nombre.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- 4. Precio Referencial -->
+                            <div class="mb-3">
+                                {{ form.precio.label(class="form-label fw-semibold text-warning small") }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-dark border-secondary text-success fw-bold">$</span>
+                                    {{ form.precio(class="form-control bg-dark text-white border-secondary" + (" is-invalid" if form.precio.errors else ""), placeholder="0.00", step="0.01") }}
+                                    <span class="input-group-text bg-dark border-secondary text-muted small">USD (0 = A Cotizar)</span>
+                                </div>
+                                {% for error in form.precio.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- 5. Imagen: cargar archivo o usar un enlace web -->
+                            <fieldset class="mb-4">
+                                <legend class="form-label fw-semibold text-warning small mb-2">Imagen del catálogo</legend>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="h-100 p-3 rounded-3 border border-secondary bg-dark">
+                                            <label for="imagenArchivoServicio" class="form-label text-white fw-semibold">
+                                                <i class="bi bi-upload me-2 text-warning"></i>Subir desde este dispositivo
+                                            </label>
+                                            {{ form.imagen_archivo(
+                                                class="form-control bg-dark text-white border-secondary" + (" is-invalid" if form.imagen_archivo.errors else ""),
+                                                id="imagenArchivoServicio",
+                                                accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                                            ) }}
+                                            <small class="form-text text-muted d-block mt-2">JPG, PNG o WebP · máximo 5 MB. Se guardará en el catálogo automáticamente.</small>
+                                            {% for error in form.imagen_archivo.errors %}
+                                                <div class="text-danger small mt-2"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="h-100 p-3 rounded-3 border border-secondary bg-dark">
+                                            {{ form.imagen.label(class="form-label text-white fw-semibold") }}
+                                            {{ form.imagen(
+                                                class="form-control bg-dark text-white border-secondary" + (" is-invalid" if form.imagen.errors else ""),
+                                                placeholder="https://sitio.com/imagen.jpg",
+                                                id="inputImagenServicio",
+                                                autocomplete="url"
+                                            ) }}
+                                            <small class="form-text text-muted d-block mt-2">Pega el enlace directo y público de una imagen (http o https).</small>
+                                            {% for error in form.imagen.errors %}
+                                                <div class="text-danger small mt-2"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="small text-muted mt-2 mb-0">
+                                    <i class="bi bi-info-circle me-1"></i>Elige una sola opción. No escribas rutas de carpetas. Si editas y no seleccionas una imagen nueva, se conservará la actual.
+                                </p>
+
+                                <div id="imagenPreviewContenedor" class="mt-3 {{ 'd-none' if not imagen_previa else '' }}">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <span class="small text-light fw-semibold">Vista previa</span>
+                                        <span id="imagenPreviewError" class="small text-danger d-none">No se pudo cargar la imagen. Revisa el archivo o el enlace.</span>
+                                    </div>
+                                    <img
+                                        id="imagenPreview"
+                                        src="{{ imagen_previa }}"
+                                        alt="Vista previa de la imagen del catálogo"
+                                        class="img-fluid rounded-3 border border-secondary shadow-sm"
+                                        style="max-height: 220px; width: 100%; object-fit: contain; background: #10141c;"
+                                    >
+                                </div>
+                            </fieldset>
+
+                            <!-- 6. Descripción y Especificaciones Detalladas -->
+                            <div class="mb-3">
+                                {{ form.descripcion.label(class="form-label fw-semibold text-warning small") }}
+                                {{ form.descripcion(class="form-control bg-dark text-white border-secondary" + (" is-invalid" if form.descripcion.errors else ""), rows="5", placeholder="Explica los beneficios, qué incluye la opción, especificaciones técnicas, resolución, garantía y turnos...") }}
+                                <small class="text-muted d-block mt-1">
+                                    <i class="bi bi-info-circle text-warning me-1"></i>Puedes detallar todo lo que incluye el equipo o servicio (garantía, turnos, resolución, etc.). El visitante podrá leer la información completa usando el botón <strong>"Ver más detalles"</strong>.
+                                </small>
+                                {% for error in form.descripcion.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- 7. Interruptores Booleanos -->
+                            <div class="row g-2 mb-4">
+                                <div class="col-sm-6">
+                                    <div class="form-check form-switch p-2 bg-dark rounded border border-secondary">
+                                        {{ form.disponible(class="form-check-input ms-0 me-2", id="checkDisponible") }}
+                                        <label class="form-check-label small text-light" for="checkDisponible">Disponible para venta / contratación</label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-check form-switch p-2 bg-dark rounded border border-secondary">
+                                        {{ form.destacado(class="form-check-input ms-0 me-2", id="checkDestacado") }}
+                                        <label class="form-check-label small text-light" for="checkDestacado">Mostrar en portada de inicio</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 8. Botones de Acción -->
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('servicios') }}" class="btn btn-outline-secondary flex-grow-1 rounded-pill">
+                                    Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-danger flex-grow-1 rounded-pill fw-bold">
+                                    <i class="bi bi-check-lg me-1"></i>Guardar en el Catálogo
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const campoImagenUrl = document.getElementById('inputImagenServicio');
+    const campoImagenArchivo = document.getElementById('imagenArchivoServicio');
+    const contenedorPreview = document.getElementById('imagenPreviewContenedor');
+    const imagenPreview = document.getElementById('imagenPreview');
+    const errorPreview = document.getElementById('imagenPreviewError');
+    const imagenActual = {{ imagen_actual|tojson }};
+    let urlTemporal = null;
+
+    function mostrarVistaPrevia(origen) {
+        if (!origen) {
+            imagenPreview.src = imagenActual;
+            contenedorPreview.classList.toggle('d-none', !imagenActual);
+            errorPreview.classList.add('d-none');
+            return;
+        }
+
+        imagenPreview.src = origen;
+        contenedorPreview.classList.remove('d-none');
+        errorPreview.classList.add('d-none');
+    }
+
+    imagenPreview.addEventListener('error', function() {
+        errorPreview.classList.remove('d-none');
+    });
+
+    imagenPreview.addEventListener('load', function() {
+        errorPreview.classList.add('d-none');
+    });
+
+    campoImagenUrl.addEventListener('input', function() {
+        if (this.value.trim()) {
+            campoImagenArchivo.value = '';
+            if (urlTemporal) {
+                URL.revokeObjectURL(urlTemporal);
+                urlTemporal = null;
+            }
+            mostrarVistaPrevia(this.value.trim());
+        } else {
+            mostrarVistaPrevia(imagenActual);
+        }
+    });
+
+    campoImagenArchivo.addEventListener('change', function() {
+        if (urlTemporal) {
+            URL.revokeObjectURL(urlTemporal);
+            urlTemporal = null;
+        }
+        if (this.files.length) {
+            campoImagenUrl.value = '';
+            urlTemporal = URL.createObjectURL(this.files[0]);
+            mostrarVistaPrevia(urlTemporal);
+        } else {
+            mostrarVistaPrevia(campoImagenUrl.value.trim() || imagenActual);
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.py[cod]
+.env
+megaseg.db
+*.db-journal
+static/imagenes/catalogo/*
+!static/imagenes/catalogo/.gitkeep

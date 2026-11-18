@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block titulo %}Auditor del Sistema y Registro de Actividad - Grupo Megaseg{% endblock %}
+
+{% block content %}
+<!-- ==============================================================================
+     ENCABEZADO DE PÁGINA: AUDITORÍA Y TRAZABILIDAD
+     ============================================================================== -->
+<section class="page-header py-4 bg-darker text-white border-bottom border-secondary">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <span class="badge bg-danger text-white px-3 py-1 mb-2 text-uppercase fw-semibold">
+                    <i class="bi bi-shield-lock me-1"></i>Seguridad, Auditoría & Trazabilidad
+                </span>
+                <h1 class="h3 fw-bold mb-1">Auditor del Sistema y Registro de Cambios</h1>
+                <p class="text-light-muted small mb-0">
+                    Historial cronológico de modificaciones en el catálogo, roles y accesos
+                </p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('admin_usuarios') }}" class="btn btn-outline-light btn-sm rounded-pill px-3 fw-semibold">
+                    <i class="bi bi-people me-1"></i>Gestionar Roles
+                </a>
+                <a href="{{ url_for('servicios') }}" class="btn btn-warning btn-sm rounded-pill px-3 fw-semibold text-dark">
+                    <i class="bi bi-grid-fill me-1"></i>Ver Catálogo
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==============================================================================
+     TABLA DE REGISTROS DE AUDITORÍA
+     ============================================================================== -->
+<section class="py-5 bg-dark">
+    <div class="container">
+        <!-- Panel de Filtro y Búsqueda -->
+        <div class="card border border-secondary shadow-sm rounded-4 mb-4 p-4 bg-navy-light text-white">
+            <form method="GET" action="{{ url_for('admin_logs') }}" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label for="buscarLog" class="form-label small fw-semibold text-warning mb-1">
+                        <i class="bi bi-search me-1"></i>Buscar en los eventos
+                    </label>
+                    <input type="text" id="buscarLog" name="q" class="form-control bg-dark text-white border-secondary"
+                           placeholder="Usuario, acción, entidad, detalles o IP..."
+                           value="{{ busqueda or '' }}">
+                </div>
+
+                <div class="col-md-3">
+                    <label for="filtroAccion" class="form-label small fw-semibold text-warning mb-1">
+                        <i class="bi bi-funnel me-1"></i>Acción Realizada
+                    </label>
+                    <select id="filtroAccion" name="accion" class="form-select bg-dark text-white border-secondary">
+                        <option value="">Todas las acciones</option>
+                        <option value="CREAR" {% if accion_sel == 'CREAR' %}selected{% endif %}>Creación</option>
+                        <option value="EDITAR" {% if accion_sel == 'EDITAR' %}selected{% endif %}>Modificación</option>
+                        <option value="ELIMINAR" {% if accion_sel == 'ELIMINAR' %}selected{% endif %}>Eliminación</option>
+                        <option value="LOGIN" {% if accion_sel == 'LOGIN' %}selected{% endif %}>Inicio de Sesión</option>
+                        <option value="LOGOUT" {% if accion_sel == 'LOGOUT' %}selected{% endif %}>Cierre de Sesión</option>
+                        <option value="CAMBIO_ROL" {% if accion_sel == 'CAMBIO_ROL' %}selected{% endif %}>Cambio de Rol</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-warning flex-grow-1 text-dark fw-bold rounded-pill">
+                        <i class="bi bi-filter me-1"></i>Filtrar Auditoría
+                    </button>
+                    {% if busqueda or accion_sel %}
+                    <a href="{{ url_for('admin_logs') }}" class="btn btn-outline-secondary rounded-pill" title="Limpiar">
+                        <i class="bi bi-x-circle"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+
+        <!-- Tabla de Eventos -->
+        <div class="card border border-secondary shadow rounded-4 overflow-hidden bg-navy-light text-white">
+            <div class="card-header bg-dark p-3 border-bottom border-secondary d-flex justify-content-between align-items-center">
+                <span class="small text-muted">
+                    Mostrando <strong class="text-warning">{{ logs|length }}</strong> registros de auditoría
+                </span>
+                <span class="badge bg-secondary">
+                    <i class="bi bi-clock-history me-1"></i>Orden Cronológico
+                </span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0 align-middle">
+                    <thead>
+                        <tr class="text-warning small text-uppercase">
+                            <th class="ps-4">Fecha y Hora</th>
+                            <th>Usuario Responsable</th>
+                            <th>Rol Activo</th>
+                            <th>Acción</th>
+                            <th>Módulo / Entidad</th>
+                            <th>Detalles del Cambio</th>
+                            <th class="text-end pe-4">Dirección IP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td class="ps-4 small text-light-muted text-nowrap">
+                                <i class="bi bi-calendar3 me-1 text-warning"></i>{{ log.fecha }}
+                            </td>
+                            <td>
+                                <strong class="text-white">{{ log.usuario_nombre }}</strong>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary bg-opacity-75 text-white">
+                                    {{ log.rol }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if log.accion == 'CREAR' %}
+                                    <span class="badge bg-success-subtle text-success border border-success"><i class="bi bi-plus-circle me-1"></i>CREAR</span>
+                                {% elif log.accion == 'EDITAR' %}
+                                    <span class="badge bg-warning-subtle text-warning border border-warning"><i class="bi bi-pencil me-1"></i>EDITAR</span>
+                                {% elif log.accion == 'ELIMINAR' %}
+                                    <span class="badge bg-danger-subtle text-danger border border-danger"><i class="bi bi-trash me-1"></i>ELIMINAR</span>
+                                {% elif log.accion == 'LOGIN' %}
+                                    <span class="badge bg-secondary text-white"><i class="bi bi-box-arrow-in-right me-1"></i>LOGIN</span>
+                                {% else %}
+                                    <span class="badge bg-dark border border-secondary text-light">{{ log.accion }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-dark border border-secondary text-warning text-uppercase small">
+                                    {{ log.entidad }}
+                                </span>
+                            </td>
+                            <td class="small text-light">
+                                {{ log.detalles }}
+                            </td>
+                            <td class="text-end pe-4 font-monospace small text-muted">
+                                {{ log.ip }}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="bi bi-journal-check fs-2 text-secondary mb-2 d-block"></i>
+                                No se encontraron registros de actividad con los filtros seleccionados.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

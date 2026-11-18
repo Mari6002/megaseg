@@ -1,7 +1,44 @@
 from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
+import atexit
 import os
+import gc
+
+from dotenv import load_dotenv
+
+PROJECT_ROOT = Path(__file__).resolve().parent
+load_dotenv(PROJECT_ROOT / '.env')
+os.environ.update({
+    'USE_POSTGRES': 'false',
+    'USE_SQLITE': 'true',
+    'ADMIN_USERNAME': 'test_admin',
+    'ADMIN_PASSWORD': 'TestAdminPassword_123!'
+})
+
+import conexion.conexion as database
+
+test_database = TemporaryDirectory(prefix='megaseg-test-')
+database.DB_PATH = Path(test_database.name) / 'megaseg-test.db'
+
+
+def cleanup_test_database():
+    connection = globals().get('conn')
+    if connection:
+        try:
+            connection.close()
+        except Exception:
+            pass
+    try:
+        with app.app.app_context():
+            app.close_db_connection(None)
+    except Exception:
+        pass
+    gc.collect()
+    test_database.cleanup()
+
+
+atexit.register(cleanup_test_database)
 
 import app
 
@@ -24,7 +61,6 @@ print('2. Catalog page OK')
 # 3. Test Login
 admin_username = os.getenv('ADMIN_USERNAME')
 admin_password = os.getenv('ADMIN_PASSWORD')
-assert admin_username and admin_password, 'Set ADMIN_USERNAME and ADMIN_PASSWORD in .env'
 res = client.post(
     '/login',
     data={'usuario': admin_username, 'password': admin_password},
@@ -74,7 +110,7 @@ assert b'Servicio Test Automatizado' in res_search.data, 'Catalog search failed'
 print('4. Service creation OK')
 
 # 5. Verify in DB and get ID
-conn = app.get_db_connection()
+conn = database.get_db_connection()
 c = conn.cursor()
 c.execute("SELECT id, imagen FROM servicios WHERE nombre = %s", ('Servicio Test Automatizado',))
 row = c.fetchone()
@@ -131,6 +167,18 @@ assert res_logout.status_code == 200
 print('8. Logout OK')
 
 # 9. Test Pagination (12 items per page)
+for index in range(4):
+    app.servicio_repository.crear_servicio({
+        'tipo_servicio_id': 1,
+        'nombre': f'Servicio de paginación {index}',
+        'precio_base': 10.00,
+        'imagen': '',
+        'descripcion': 'Registro temporal de prueba de paginación.',
+        'disponible': True,
+        'es_producto': 0,
+        'destacado': False
+    })
+
 res_page1 = client.get('/servicios?page=1')
 assert res_page1.status_code == 200
 assert 'badgeTotalServicios">12</span>'.encode('utf-8') in res_page1.data
@@ -138,8 +186,10 @@ assert '12 por'.encode('utf-8') in res_page1.data
 
 res_page2 = client.get('/servicios?page=2')
 assert res_page2.status_code == 200
-assert 'badgeTotalServicios">3</span>'.encode('utf-8') in res_page2.data
+assert 'badgeTotalServicios">1</span>'.encode('utf-8') in res_page2.data
 assert 'de <strong class="text-white">2</strong>'.encode('utf-8') in res_page2.data
 print('9. Pagination of 12 items per page OK')
 
+c.close()
+conn.close()
 print('\n>>> ALL FULL-STACK END-TO-END TESTS PASSED! <<<')

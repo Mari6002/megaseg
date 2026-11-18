@@ -1,9 +1,8 @@
 # ==============================================================================
 # PROYECTO: MEGASEG SEGURIDAD INTEGRAL - CONEXIÓN A BASE DE DATOS
 # ==============================================================================
-# Este módulo administra la conexión centralizada con soporte dual:
-# 1. PostgreSQL cuando se configura DATABASE_URL.
-# 2. SQLite local para desarrollo y pruebas.
+# Este módulo usa PostgreSQL según DATABASE_URL o USE_POSTGRES=true y permite
+# SQLite explícitamente con USE_SQLITE=true para pruebas y desarrollo aislado.
 # ==============================================================================
 
 import os
@@ -72,7 +71,6 @@ class SQLiteConnectionWrapper:
     @property
     def closed(self):
         try:
-            # Intento de operación rápida para saber si está abierta
             self.connection.total_changes
             return False
         except Exception:
@@ -82,8 +80,8 @@ class SQLiteConnectionWrapper:
 def get_db_connection():
     """
     Obtiene una conexión activa a la base de datos.
-    Usa PostgreSQL cuando DATABASE_URL está configurada y SQLite para desarrollo local.
-    Un fallo de PostgreSQL se propaga; nunca cambia silenciosamente a otra base.
+    - Usa PostgreSQL cuando DATABASE_URL está configurada o USE_POSTGRES=true.
+    - Usa SQLite cuando se ejecuta en desarrollo local sin PostgreSQL activo.
     """
     if has_app_context():
         conexion_actual = getattr(g, 'megaseg_db_connection', None)
@@ -91,31 +89,47 @@ def get_db_connection():
             return conexion_actual
 
     db_url = (os.getenv('DATABASE_URL') or '').strip()
+    use_postgres = (os.getenv('USE_POSTGRES') or '').strip().lower() in ('1', 'true', 'yes')
+    use_sqlite = (os.getenv('USE_SQLITE') or '').strip().lower() in ('1', 'true', 'yes')
 
-    # Opción 1: Conexión PostgreSQL (si está configurada)
-    if db_url:
+    # Opción 1: Conexión PostgreSQL (si se especificó DATABASE_URL o USE_POSTGRES=true)
+    if (db_url or use_postgres) and not use_sqlite:
         try:
             import psycopg2
             from psycopg2.extras import RealDictCursor
         except ImportError as error:
             raise RuntimeError(
-                'DATABASE_URL está configurada, pero falta instalar psycopg2.'
+                'PostgreSQL está configurado pero falta instalar psycopg2.'
             ) from error
 
-        if db_url.startswith('postgres://'):
-            db_url = db_url.replace('postgres://', 'postgresql://', 1)
+        parametros = {}
+        application_name = 'megaseg-web'
+
+        if db_url:
+            if db_url.startswith('postgres://'):
+                db_url = db_url.replace('postgres://', 'postgresql://', 1)
+            parametros['dsn'] = db_url
+        else:
+            parametros = {
+                'host': os.getenv('DB_HOST', 'localhost'),
+                'port': int(os.getenv('DB_PORT', 5432)),
+                'dbname': os.getenv('DB_NAME', 'megaseg'),
+                'user': os.getenv('DB_USER', 'postgres'),
+                'password': os.getenv('DB_PASSWORD', ''),
+            }
 
         try:
             conexion = psycopg2.connect(
-                dsn=db_url,
+                **parametros,
                 cursor_factory=RealDictCursor,
                 connect_timeout=10,
-                application_name='megaseg-web'
+                application_name=application_name
             )
         except Exception as error:
+            dest = db_url if db_url else f"{parametros.get('host')}:{parametros.get('port')}/{parametros.get('dbname')}"
             raise RuntimeError(
-                'No se pudo conectar a PostgreSQL configurado en DATABASE_URL. '
-                'Se cancela la operación para evitar usar otra base de datos.'
+                f'No se pudo conectar a PostgreSQL en [{dest}]. '
+                'Verifica que el servicio esté corriendo en tu equipo y que la contraseña en .env sea correcta.'
             ) from error
 
         if has_app_context():
@@ -144,5 +158,3 @@ def close_db_connection(exception=None):
         except Exception:
             pass
     g.megaseg_db_connection = None
-
-

@@ -1,4 +1,4 @@
-"""Consultas y operaciones de persistencia del catálogo de servicios."""
+"""Consultas y operaciones de persistencia del catálogo de servicios y productos."""
 
 from conexion.conexion import get_db_connection
 
@@ -13,11 +13,11 @@ def obtener_destacados(limite=6):
         SELECT s.*, t.nombre AS tipo_nombre
         FROM servicios s
         JOIN tipos_servicio t ON s.tipo_servicio_id = t.id
-        WHERE s.destacado = 1 AND s.disponible = 1
+        WHERE s.destacado = %s AND s.disponible = %s
         ORDER BY s.id ASC
         LIMIT %s
         ''',
-        (limite,)
+        (True, True, limite)
     )
     servicios = cursor.fetchall()
 
@@ -27,11 +27,11 @@ def obtener_destacados(limite=6):
             SELECT s.*, t.nombre AS tipo_nombre
             FROM servicios s
             JOIN tipos_servicio t ON s.tipo_servicio_id = t.id
-            WHERE s.disponible = 1
+                WHERE s.disponible = %s
             ORDER BY s.id ASC
             LIMIT %s
             ''',
-            (limite,)
+                (True, limite)
         )
         servicios = cursor.fetchall()
 
@@ -56,10 +56,10 @@ def _construir_filtros(busqueda='', tipo='', disponibilidad=''):
 
     if busqueda:
         condiciones.append(
-            '(s.nombre LIKE %s OR s.descripcion LIKE %s OR t.nombre LIKE %s)'
+            '(s.nombre LIKE %s OR s.descripcion LIKE %s OR t.nombre LIKE %s OR s.ficha_tecnica LIKE %s)'
         )
         valor = f'%{busqueda}%'
-        parametros.extend([valor, valor, valor])
+        parametros.extend([valor, valor, valor, valor])
 
     if tipo:
         condiciones.append('t.nombre = %s')
@@ -122,26 +122,36 @@ def listar_servicios(busqueda='', tipo='', disponibilidad='', orden='',
 
 
 def obtener_servicio(servicio_id):
-    """Busca un servicio por su identificador."""
+    """Busca un servicio por su identificador con el nombre de su categoría."""
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM servicios WHERE id = %s', (servicio_id,))
+    cursor.execute(
+        '''
+        SELECT s.*, t.nombre AS tipo_nombre
+        FROM servicios s
+        JOIN tipos_servicio t ON s.tipo_servicio_id = t.id
+        WHERE s.id = %s
+        ''',
+        (servicio_id,)
+    )
     servicio = cursor.fetchone()
     cursor.close()
     return servicio
 
 
 def crear_servicio(datos):
-    """Inserta un servicio validado y devuelve el identificador creado."""
+    """Inserta un servicio validado con todos los campos de la plantilla dinámica."""
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
         '''
         INSERT INTO servicios (
             tipo_servicio_id, nombre, precio_base, imagen, descripcion,
-            disponible, es_producto, destacado
+            disponible, es_producto, destacado, tipo_producto, garantia,
+            zona_cobertura, disponibilidad_atencion, modalidad_pago, ficha_tecnica, whatsapp_msg
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        RETURNING id
         ''',
         (
             datos['tipo_servicio_id'],
@@ -149,19 +159,26 @@ def crear_servicio(datos):
             datos['precio_base'],
             datos['imagen'],
             datos['descripcion'],
-            datos['disponible'],
+            bool(datos['disponible']),
             datos['es_producto'],
-            datos['destacado']
+            bool(datos['destacado']),
+            datos.get('tipo_producto') or ('Equipo Físico' if datos['es_producto'] else 'Servicio Operativo'),
+            datos.get('garantia', ''),
+            datos.get('zona_cobertura', ''),
+            datos.get('disponibilidad_atencion', ''),
+            datos.get('modalidad_pago', ''),
+            datos.get('ficha_tecnica', ''),
+            datos.get('whatsapp_msg', '')
         )
     )
-    servicio_id = cursor.lastrowid
+    servicio_id = cursor.fetchone()['id']
     conn.commit()
     cursor.close()
     return servicio_id
 
 
 def actualizar_servicio(servicio_id, datos):
-    """Actualiza los datos de un servicio existente."""
+    """Actualiza todos los datos y especificaciones de un servicio o producto existente."""
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
@@ -174,7 +191,14 @@ def actualizar_servicio(servicio_id, datos):
             descripcion = %s,
             disponible = %s,
             es_producto = %s,
-            destacado = %s
+            destacado = %s,
+            tipo_producto = %s,
+            garantia = %s,
+            zona_cobertura = %s,
+            disponibilidad_atencion = %s,
+            modalidad_pago = %s,
+            ficha_tecnica = %s,
+            whatsapp_msg = %s
         WHERE id = %s
         ''',
         (
@@ -183,9 +207,16 @@ def actualizar_servicio(servicio_id, datos):
             datos['precio_base'],
             datos['imagen'],
             datos['descripcion'],
-            datos['disponible'],
+            bool(datos['disponible']),
             datos['es_producto'],
-            datos['destacado'],
+            bool(datos['destacado']),
+            datos.get('tipo_producto') or ('Equipo Físico' if datos['es_producto'] else 'Servicio Operativo'),
+            datos.get('garantia', ''),
+            datos.get('zona_cobertura', ''),
+            datos.get('disponibilidad_atencion', ''),
+            datos.get('modalidad_pago', ''),
+            datos.get('ficha_tecnica', ''),
+            datos.get('whatsapp_msg', ''),
             servicio_id
         )
     )

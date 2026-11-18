@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block titulo %}Gestión de Roles y Usuarios - Grupo Megaseg{% endblock %}
+
+{% block content %}
+<!-- ==============================================================================
+     ENCABEZADO DE PÁGINA: ROLES Y USUARIOS (RBAC)
+     ============================================================================== -->
+<section class="page-header py-4 bg-darker text-white border-bottom border-secondary">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <span class="badge bg-danger text-white px-3 py-1 mb-2 text-uppercase fw-semibold">
+                    <i class="bi bi-shield-shaded me-1"></i>Control de Acceso y Permisos
+                </span>
+                <h1 class="h3 fw-bold mb-1">Gestión de Roles y Usuarios del Sistema</h1>
+                <p class="text-light-muted small mb-0">
+                    Administra los niveles de autorización, roles asignados y accesos para el equipo de Megaseg
+                </p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('admin_logs') }}" class="btn btn-outline-light btn-sm rounded-pill px-3 fw-semibold">
+                    <i class="bi bi-shield-lock me-1"></i>Ver Auditoría
+                </a>
+                <a href="{{ url_for('servicios') }}" class="btn btn-warning btn-sm rounded-pill px-3 fw-semibold text-dark">
+                    <i class="bi bi-grid-fill me-1"></i>Ver Catálogo
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==============================================================================
+     MATRIZ DE ROLES Y TABLA DE USUARIOS
+     ============================================================================== -->
+<section class="py-5 bg-dark">
+    <div class="container">
+        
+        <!-- Matriz de Roles Definidos -->
+        <div class="row g-3 mb-4">
+            {% for rol in roles %}
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border border-secondary shadow-sm rounded-4 bg-navy-light text-white p-3">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="icon-circle bg-danger bg-opacity-25 text-danger rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                            <i class="bi bi-person-badge-fill"></i>
+                        </div>
+                        <h6 class="fw-bold text-warning mb-0">{{ rol.nombre }}</h6>
+                    </div>
+                    <p class="small text-muted mb-0 flex-grow-1">
+                        {{ rol.descripcion }}
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Tabla de Usuarios Registrados -->
+        <div class="card border border-secondary shadow rounded-4 overflow-hidden bg-navy-light text-white">
+            <div class="card-header bg-dark p-3 border-bottom border-secondary d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold text-white mb-0">Usuarios y Asignación de Roles</h5>
+                    <small class="text-muted">Cambia los roles de los usuarios directamente desde este panel</small>
+                </div>
+                <span class="badge bg-secondary">
+                    Total: {{ usuarios|length }} Cuentas
+                </span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0 align-middle">
+                    <thead>
+                        <tr class="text-warning small text-uppercase">
+                            <th class="ps-4">ID</th>
+                            <th>Usuario / Login</th>
+                            <th>Nombre Completo</th>
+                            <th>Correo Electrónico</th>
+                            <th>Rol Asignado</th>
+                            <th>Estado</th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in usuarios %}
+                        <tr>
+                            <td class="ps-4 font-monospace text-muted">{{ u.id }}</td>
+                            <td>
+                                <strong class="text-white">{{ u.usuario }}</strong>
+                            </td>
+                            <td class="text-light">{{ u.nombre }}</td>
+                            <td class="small text-muted">{{ u.email or 'No registrado' }}</td>
+                            <td>
+                                <span class="badge bg-primary text-white">
+                                    <i class="bi bi-shield-check me-1"></i>{{ u.rol }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if u.activo %}
+                                    <span class="badge bg-success-subtle text-success border border-success">
+                                        <i class="bi bi-check-circle-fill me-1"></i>Admitido / Activo
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-warning-subtle text-warning border border-warning">
+                                        <i class="bi bi-hourglass-split me-1"></i>Pendiente de Admisión
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="d-inline-flex align-items-center gap-2">
+                                    {% if not u.activo %}
+                                    <form method="POST" action="{{ url_for('admin_cambiar_estado', id=u.id) }}" class="d-inline m-0">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 py-1 fw-bold shadow-sm" title="Admitir y activar acceso para este usuario">
+                                            <i class="bi bi-person-check-fill me-1"></i>Admitir
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                        {% if u.id != current_user.id %}
+                                        <form method="POST" action="{{ url_for('admin_cambiar_estado', id=u.id) }}" class="d-inline m-0" onsubmit="return confirm('¿Seguro que deseas suspender el acceso de este usuario?');">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1" title="Suspender usuario">
+                                                <i class="bi bi-person-x"></i>
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    <form method="POST" action="{{ url_for('admin_cambiar_rol', id=u.id) }}" class="d-inline-flex align-items-center gap-1 m-0">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <select name="nuevo_rol" class="form-select form-select-sm bg-dark text-white border-secondary py-1" style="width: auto;">
+                                            {% for r in roles %}
+                                            <option value="{{ r.nombre }}" {% if u.rol == r.nombre %}selected{% endif %}>
+                                                {{ r.nombre }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-outline-warning rounded-pill px-2 py-1" title="Guardar Rol">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

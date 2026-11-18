@@ -428,6 +428,216 @@ small, .small {
     transition: color 0.2s ease;
 }
 
+/* ==============================================================================
+   PLANTILLA DINÁMICA OFICIAL DE TARJETAS (ESTRUCTURA MODULAR)
+   ============================================================================== */
+.tarjeta-producto {
+    background: #0B0F19;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    border-radius: var(--radius-md);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    overflow: hidden;
+}
+
+.tarjeta-producto:hover {
+    border-color: var(--dorado) !important;
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px rgba(245, 158, 11, 0.15), 0 5px 15px rgba(0, 0, 0, 0.9);
+}
+
+.header-precio {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.header-precio .categoria {
+    background: rgba(30, 41, 59, 0.85);
+    color: #F8FAFC;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+}
+
+.header-precio .precio {
+    color: var(--dorado-brillante);
+    font-weight: 800;
+    font-size: 1.05rem;
+    background: rgba(4, 6, 10, 0.85);
+    border: 1px solid rgba(245, 158, 11, 0.45);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+}
+
+.info-principal {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.info-principal .badge-estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    align-self: flex-start;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.65rem;
+    border-radius: 20px;
+    margin-bottom: 0.5rem;
+}
+
+.info-principal .badge-estado.disponible {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ADE80;
+    border: 1px solid rgba(34, 197, 94, 0.45);
+}
+
+.info-principal .badge-estado.proximamente {
+    background: rgba(245, 158, 11, 0.15);
+    color: #FBBF24;
+    border: 1px solid rgba(245, 158, 11, 0.45);
+}
+
+.info-principal h3 {
+    font-size: 1.18rem;
+    font-weight: 800;
+    color: #FFFFFF !important;
+    margin: 0.4rem 0 0.6rem 0;
+    line-height: 1.35;
+}
+
+.info-principal p {
+    font-size: 0.88rem;
+    color: #CBD5E1;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.btn-ver-mas {
+    width: 100%;
+    background: rgba(245, 158, 11, 0.08);
+    color: var(--dorado-brillante) !important;
+    border: 1px solid rgba(245, 158, 11, 0.6);
+    border-radius: 30px;
+    padding: 0.5rem 1rem;
+    font-size: 0.86rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    margin: 0.5rem 0;
+}
+
+.btn-ver-mas:hover, .btn-ver-mas.is-expanded {
+    background: var(--dorado);
+    color: #04060A !important;
+    border-color: var(--dorado);
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+}
+
+.detalles-desplegable {
+    background: #060911;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+    animation: fadeInDetalle 0.3s ease;
+}
+
+.ficha-tecnica-tag {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.ficha-tecnica-tag span:first-child {
+    background: var(--dorado);
+    color: #04060A;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    text-transform: uppercase;
+}
+
+.ficha-tecnica-tag .tipo-badge {
+    color: #E2E8F0;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.detalle-bloque {
+    font-size: 0.84rem;
+    color: #CBD5E1;
+    margin-bottom: 0.65rem;
+    line-height: 1.55;
+}
+
+.detalle-bloque strong {
+    color: #FFFFFF;
+    display: inline-block;
+    margin-right: 0.25rem;
+}
+
+.detalle-bloque i {
+    color: var(--dorado-brillante);
+    margin-right: 0.35rem;
+}
+
+.contenido-html-dinamico {
+    margin-top: 0.35rem;
+    padding: 0.5rem;
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 6px;
+    border-left: 2px solid var(--dorado);
+    color: #F1F5F9;
+    font-size: 0.82rem;
+}
+
+.btn-whatsapp {
+    width: 100%;
+    background: linear-gradient(135deg, #22C55E 0%, #15803D 100%);
+    color: #FFFFFF !important;
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 0.55rem 1rem;
+    border-radius: 30px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    margin-top: 0.75rem;
+    box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
+}
+
+.btn-whatsapp:hover {
+    background: linear-gradient(135deg, #4ADE80 0%, #16A34A 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5);
+    color: #FFFFFF !important;
+}
+
 /* Responsive Media Queries */
 @media (max-width: 768px) {
     .hero-megaseg {
@@ -451,5 +661,86 @@ small, .small {
     .experience-card-floating {
         position: static;
         margin-top: 1rem;
+    }
+}
+
+/* ==============================================================================
+   ESTILOS DE LA PLANTILLA DINÁMICA DE TARJETAS (MEGASEG + NEXODIGITAL)
+   ============================================================================== */
+.btn-toggle-detalle {
+    background: transparent;
+    color: var(--dorado-brillante) !important;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    border-radius: var(--radius-sm);
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.25s ease;
+}
+
+.btn-toggle-detalle:hover,
+.btn-toggle-detalle.is-expanded {
+    background: rgba(245, 158, 11, 0.15);
+    border-color: var(--dorado-brillante);
+    color: #FFFFFF !important;
+}
+
+.detalle-expandible-box {
+    background: rgba(7, 11, 20, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+}
+
+.detalle-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 0.75rem;
+    font-size: 0.82rem;
+}
+
+.detalle-item:last-child {
+    margin-bottom: 0;
+}
+
+.detalle-item i {
+    font-size: 1rem;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+/* ==============================================================================
+   REGLAS DE IMPRESIÓN OFICIAL Y POR BLOQUES (PRINT MEDIA QUERIES)
+   ============================================================================== */
+@media print {
+    /* Ocultar elementos de navegación y decorativos al imprimir */
+    .no-imprimir,
+    .navbar,
+    .topbar-emergency,
+    .footer-megaseg,
+    .whatsapp-float-btn,
+    .btn,
+    .badge-estado-acciones {
+        display: none !important;
+    }
+
+    body {
+        background-color: #FFFFFF !important;
+        background: #FFFFFF !important;
+        color: #000000 !important;
+        font-size: 12pt;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .table {
+        color: #000000 !important;
+        border-color: #000000 !important;
+    }
+
+    .table-dark {
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
     }
 }

@@ -11,12 +11,12 @@
         <span class="badge bg-danger mb-2 px-3 py-2 text-uppercase fw-semibold tracking-wider">Seguridad Integral</span>
         <h1 class="display-5 fw-bold mb-2">Servicios & Equipamiento de Seguridad</h1>
         <p class="lead text-light-muted mx-auto mb-4" style="max-width: 680px;">
-            Explore nuestra oferta de vigilancia electrónica, guardianía física y automatización en Sucumbíos con precios claros y cotización directa a WhatsApp.
+            Explore nuestra oferta de vigilancia electrónica, guardianía física y equipamiento tecnológico en Sucumbíos con información técnica oficial, cobertura y cotización directa a WhatsApp.
         </p>
         <div>
-            {% if current_user.is_authenticated and current_user.is_admin() %}
+            {% if current_user.is_authenticated and current_user.can_manage_catalog() %}
             <a href="{{ url_for('nuevo_servicio') }}" class="btn btn-warning btn-lg text-dark fw-bold shadow-sm">
-                <i class="bi bi-plus-circle me-2"></i>Registrar Nuevo Servicio o Producto
+                <i class="bi bi-plus-circle-fill me-2"></i>Registrar Nuevo Servicio o Producto
             </a>
             {% endif %}
         </div>
@@ -38,7 +38,7 @@
                 <span class="badge bg-secondary text-white px-3 py-2 rounded-pill">
                     <i class="bi bi-grid-fill me-1"></i><span id="badgeTotalServicios">{{ servicios|length }}</span> publicaciones
                 </span>
-                {% if current_user.is_authenticated and current_user.is_admin() %}
+                {% if current_user.is_authenticated and current_user.can_manage_catalog() %}
                 <a href="{{ url_for('nuevo_servicio') }}" class="btn btn-warning btn-sm text-dark fw-bold">
                     <i class="bi bi-plus-lg me-1"></i>Nuevo Ítem
                 </a>
@@ -52,7 +52,7 @@
         <form id="formFiltrosCatalogo" method="GET" action="{{ url_for('servicios') }}" class="card border border-secondary shadow-sm rounded-4 mb-4 p-3 p-md-4 bg-navy-light text-white">
             <input type="hidden" name="page" id="inputFiltroPage" value="1">
             <div class="row g-3 align-items-center">
-                <!-- Buscador de texto libre con ícono y botón para borrar -->
+                <!-- Buscador de texto libre -->
                 <div class="col-lg-5 col-md-6">
                     <label for="buscadorServicios" class="form-label small fw-semibold text-warning mb-1">
                         <i class="bi bi-search me-1"></i>Buscar en el catálogo
@@ -71,7 +71,7 @@
                     </div>
                 </div>
 
-                <!-- Filtro por Categoría / Tipo de Servicio -->
+                <!-- Filtro por Categoría -->
                 <div class="col-lg-3 col-md-3 col-sm-6">
                     <label for="filtroCategoria" class="form-label small fw-semibold text-warning mb-1">
                         <i class="bi bi-folder2-open me-1"></i>Categoría
@@ -84,7 +84,7 @@
                     </select>
                 </div>
 
-                <!-- Filtro por Estado / Disponibilidad -->
+                <!-- Filtro por Disponibilidad -->
                 <div class="col-lg-2 col-md-3 col-sm-6">
                     <label for="filtroDisponibilidad" class="form-label small fw-semibold text-warning mb-1">
                         <i class="bi bi-toggle-on me-1"></i>Disponibilidad
@@ -144,25 +144,30 @@
             {% endif %}
         </div>
 
-        <!-- Cuadrícula de Servicios y Productos -->
+        <!-- ==============================================================================
+             CUADRÍCULA DE TARJETAS DINÁMICAS (PLANTILLA OFICIAL MEGASEG + NEXODIGITAL)
+             ============================================================================== -->
         <div class="row g-4" id="contenedorServicios">
             {% for servicio in servicios %}
-            <div class="col-md-6 col-lg-4 service-col"
+            <div class="col-md-6 col-lg-4 service-col d-flex"
                  data-nombre="{{ (servicio.nombre or '')|lower }}"
                  data-descripcion="{{ (servicio.descripcion or '')|lower }}"
                  data-tipo="{{ (servicio.tipo_nombre or '')|lower }}"
                  data-tipo-exacto="{{ servicio.tipo_nombre or '' }}"
                  data-disponible="{{ '1' if servicio.disponible else '0' }}"
                  data-precio="{{ servicio.precio_base or 0 }}">
-                <div class="card h-100 service-card shadow border border-secondary rounded-4 bg-navy-light text-white d-flex flex-column overflow-hidden">
-                    <!-- Portada con Precio Flotante -->
+                
+                <div class="card w-100 service-card tarjeta-producto shadow border border-secondary rounded-4 bg-navy-light text-white d-flex flex-column overflow-hidden">
+                    
+                    <!-- Imagen de Portada con Precio Integrado (si tiene imagen válida) -->
+                    {% if servicio.imagen %}
                     <div class="card-img-wrapper position-relative">
-                        <img src="{{ servicio.imagen or url_for('static', filename='imagenes/guardia-megaseg.jpg') }}"
+                        <img src="{{ servicio.imagen }}"
                              alt="{{ servicio.nombre }}" 
                              class="w-100 h-100 object-fit-cover"
                              onerror="this.onerror=null; this.src='{{ url_for('static', filename='imagenes/guardia-megaseg.jpg') }}';">
                         
-                        <div class="price-tag">
+                        <div class="price-tag precio">
                             {% if servicio.precio_base and servicio.precio_base > 0 %}
                                 ${{ "%.2f"|format(servicio.precio_base) }} <span>USD</span>
                             {% else %}
@@ -170,108 +175,161 @@
                             {% endif %}
                         </div>
                     </div>
+                    {% endif %}
 
-                    <!-- Cuerpo de la Tarjeta -->
+                    <!-- Cuerpo Principal de la Tarjeta -->
                     <div class="card-body p-4 d-flex flex-column flex-grow-1">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="badge bg-secondary text-white badge-categoria-tarjeta">
+                        <!-- Encabezado de la Tarjeta: Categoría + Estado de Disponibilidad + Precio -->
+                        <div class="d-flex justify-content-between align-items-center mb-2 header-precio">
+                            <span class="badge bg-secondary text-white badge-categoria-tarjeta categoria">
                                 {{ servicio.tipo_nombre }}
                             </span>
-                            {% if servicio.disponible %}
-                                <span class="badge bg-success-subtle text-success border border-success">
-                                    <i class="bi bi-check-circle-fill me-1"></i>Disponible
+                            
+                            <div class="d-flex align-items-center gap-2">
+                                {% if not servicio.imagen %}
+                                <span class="badge bg-dark border border-warning text-warning fw-bold precio">
+                                    {% if servicio.precio_base and servicio.precio_base > 0 %}
+                                        ${{ "%.2f"|format(servicio.precio_base) }} USD
+                                    {% else %}
+                                        A Cotizar
+                                    {% endif %}
                                 </span>
-                            {% else %}
-                                <span class="badge bg-warning text-dark px-2 py-1 fw-bold">
-                                    Próximamente
-                                </span>
-                            {% endif %}
+                                {% endif %}
+
+                                {% if servicio.disponible %}
+                                    <span class="badge bg-success-subtle text-success border border-success badge-estado disponible">
+                                        <i class="bi bi-check-circle-fill me-1"></i>Disponible
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark px-2 py-1 fw-bold badge-estado proximamente">
+                                        Próximamente
+                                    </span>
+                                {% endif %}
+                            </div>
                         </div>
 
-                        <h3 class="h5 card-title fw-bold text-white my-2 titulo-servicio">
-                            {{ servicio.nombre }}
-                        </h3>
+                        <!-- Estado y Título Oficial del Producto o Servicio -->
+                        <div class="info-principal d-flex flex-column flex-grow-1">
+                            <h3 class="h5 card-title fw-bold text-white my-2 titulo-servicio">
+                                {{ servicio.nombre }}
+                            </h3>
 
-                        <p class="card-text text-muted small flex-grow-1 mb-2 descripcion-servicio">
-                            {{ servicio.descripcion }}
-                        </p>
+                            <!-- Descripción Corta / Resumen -->
+                            <p class="card-text text-muted small flex-grow-1 mb-3 descripcion-servicio">
+                                {{ servicio.descripcion }}
+                            </p>
+                        </div>
 
-                        <!-- Botón Ver Más / Ver Menos Detalles -->
+                        <!-- Botón Desplegable (Acordeón de Ficha Técnica) -->
                         <div class="my-2">
                             <button type="button" 
-                                    class="btn btn-toggle-detalle w-100" 
+                                    class="btn btn-toggle-detalle btn-ver-mas w-100" 
                                     data-bs-toggle="collapse" 
                                     data-bs-target="#detalle-card-{{ servicio.id }}" 
                                     aria-expanded="false" 
                                     aria-controls="detalle-card-{{ servicio.id }}"
-                                    data-texto-original="Ver más detalles">
-                                <i class="bi bi-info-circle me-1"></i>
+                                    data-texto-original="Ver más detalles"
+                                    onclick="toggleDetalles(this)">
+                                <i class="bi bi-info-circle me-1 icon-info"></i>
                                 <span class="btn-text">Ver más detalles</span>
-                                <i class="bi bi-chevron-down ms-1 toggle-icon"></i>
+                                <i class="bi bi-chevron-down ms-1 toggle-icon icon-chevron"></i>
                             </button>
                         </div>
 
-                        <!-- Contenedor Desplegable con Especificaciones Técnicas y Cobertura -->
-                        <div class="collapse" id="detalle-card-{{ servicio.id }}">
+                        <!-- ==================================================================
+                             CONTENIDO DINÁMICO OCULTO (SE DESPLIEGA CON ALTURA FLEXIBLE)
+                             CAMPOS CONDICIONALES: Si un campo es vacío o null, NO SE RENDERIZA
+                             ================================================================== -->
+                        <div class="collapse detalles-desplegable" id="detalle-card-{{ servicio.id }}">
                             <div class="detalle-expandible-box text-start mb-3">
-                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-secondary">
+                                <!-- Encabezado de la Ficha Técnica Oficial -->
+                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-secondary ficha-tecnica-tag">
                                     <span class="badge bg-warning text-dark fw-bold" style="font-size: 0.72rem;">
                                         <i class="bi bi-shield-check me-1"></i>Ficha Técnica Oficial
                                     </span>
-                                    <span class="small text-light-muted fw-semibold">
-                                        {{ 'Equipo Físico' if servicio.es_producto else 'Servicio Operativo' }}
+                                    <span class="small text-light-muted fw-semibold tipo-badge">
+                                        {{ servicio.tipo_producto or ('Equipo Físico' if servicio.es_producto else 'Servicio Operativo') }}
                                     </span>
                                 </div>
 
-                                <div class="detalle-item">
-                                    <i class="bi bi-check-circle-fill"></i>
+                                <!-- Bloque 1: Garantía y Respaldo (Condicional) -->
+                                {% if servicio.garantia %}
+                                <div class="detalle-item detalle-bloque">
+                                    <i class="bi bi-check-circle-fill text-warning"></i>
                                     <div>
                                         <strong class="text-white d-block">Garantía y Respaldo:</strong>
-                                        <span class="text-light-muted">Soporte técnico directo en Lago Agrio y garantía certificada por Megaseg.</span>
+                                        <span class="text-light-muted">{{ servicio.garantia }}</span>
                                     </div>
                                 </div>
+                                {% endif %}
 
-                                <div class="detalle-item">
-                                    <i class="bi bi-geo-alt-fill"></i>
+                                <!-- Bloque 2: Zona de Cobertura (Condicional) -->
+                                {% if servicio.zona_cobertura %}
+                                <div class="detalle-item detalle-bloque">
+                                    <i class="bi bi-geo-alt-fill text-warning"></i>
                                     <div>
                                         <strong class="text-white d-block">Zona de Cobertura:</strong>
-                                        <span class="text-light-muted">Nueva Loja (Lago Agrio), Shushufindi, Cascales, Cuyabeno y toda la provincia de Sucumbíos.</span>
+                                        <span class="text-light-muted">{{ servicio.zona_cobertura }}</span>
                                     </div>
                                 </div>
+                                {% endif %}
 
-                                <div class="detalle-item">
-                                    <i class="bi bi-clock-history"></i>
+                                <!-- Bloque 3: Disponibilidad de Atención (Condicional) -->
+                                {% if servicio.disponibilidad_atencion %}
+                                <div class="detalle-item detalle-bloque">
+                                    <i class="bi bi-clock-history text-warning"></i>
                                     <div>
                                         <strong class="text-white d-block">Disponibilidad de Atención:</strong>
-                                        <span class="text-light-muted">Central de monitoreo y respuesta operativa activa 24 horas, los 365 días del año.</span>
+                                        <span class="text-light-muted">{{ servicio.disponibilidad_atencion }}</span>
                                     </div>
                                 </div>
+                                {% endif %}
 
-                                <div class="detalle-item mb-0">
-                                    <i class="bi bi-cash-stack"></i>
+                                <!-- Bloque 4: Modalidad de Pago / Facturación SRI (Condicional) -->
+                                {% if servicio.modalidad_pago %}
+                                <div class="detalle-item detalle-bloque">
+                                    <i class="bi bi-cash-stack text-warning"></i>
                                     <div>
                                         <strong class="text-white d-block">Modalidad de Pago / Facturación:</strong>
-                                        <span class="text-light-muted">Emisión de factura autorizada por SRI, transferencias bancarias y planes empresariales.</span>
+                                        <span class="text-light-muted">{{ servicio.modalidad_pago }}</span>
                                     </div>
                                 </div>
+                                {% endif %}
+
+                                <!-- Bloque 5: Detalles Específicos / Ficha Técnica (Condicional) -->
+                                {% if servicio.ficha_tecnica %}
+                                <div class="detalle-item detalle-bloque mb-0">
+                                    <i class="bi bi-cpu-fill text-warning"></i>
+                                    <div class="w-100">
+                                        <strong class="text-white d-block">Detalles Específicos:</strong>
+                                        <div class="contenido-html-dinamico">
+                                            {{ servicio.ficha_tecnica }}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
 
-                        <!-- Botones de Acción (Cotizar por WhatsApp, Editar, Eliminar) -->
+                        <!-- ==================================================================
+                             BOTONES DE ACCIÓN: COTIZAR POR WHATSAPP Y CONTROLES ADMIN
+                             ================================================================== -->
                         <div class="pt-3 border-top border-secondary mt-auto d-flex justify-content-between align-items-center gap-2">
-                            <!-- Botón WhatsApp para Clientes -->
-                            <a href="https://wa.me/593982900705?text=Hola%20Grupo%20Megaseg,%20quisiera%20cotizar:%20{{ servicio.nombre|urlencode }}" 
+                            <!-- Botón WhatsApp Directo con Mensaje Preconfigurado -->
+                            {% set wa_msg = servicio.whatsapp_msg if servicio.whatsapp_msg else ('Hola Megaseg, deseo cotizar ' ~ servicio.nombre) %}
+                            <a href="https://wa.me/593982900705?text={{ wa_msg|urlencode }}" 
                                target="_blank" rel="noopener noreferrer" 
-                               class="btn btn-verde btn-sm rounded-pill flex-grow-1">
-                                <i class="bi bi-whatsapp me-1"></i>Cotizar por WhatsApp
+                               class="btn btn-verde btn-whatsapp btn-sm rounded-pill flex-grow-1 shadow-sm d-flex align-items-center justify-content-center gap-1">
+                                <i class="bi bi-whatsapp"></i> <span>Cotizar por WhatsApp</span>
                             </a>
 
-                            <!-- Acciones Exclusivas del Administrador -->
-                            {% if current_user.is_authenticated and current_user.is_admin() %}
+                            <!-- Acciones Exclusivas del Administrador y Gestor de Catálogo -->
+                            {% if current_user.is_authenticated and current_user.can_manage_catalog() %}
                             <a href="{{ url_for('editar_servicio', id=servicio.id) }}" class="btn btn-outline-warning btn-sm rounded-pill" title="Editar servicio o producto">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
-                            <form method="POST" action="{{ url_for('eliminar_servicio', id=servicio.id) }}" onsubmit="return confirm('¿Seguro que deseas eliminar este servicio/producto del catálogo?');" class="d-inline">
+                            <form method="POST" action="{{ url_for('eliminar_servicio', id=servicio.id) }}" onsubmit="return confirm('¿Seguro que deseas eliminar este servicio/producto del catálogo?');" class="d-inline m-0">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill" title="Eliminar del catálogo">
                                     <i class="bi bi-trash-fill"></i>
                                 </button>
@@ -343,9 +401,9 @@
             <h3 class="h5 fw-bold text-white">No se encontraron servicios ni productos</h3>
             <p class="text-muted small mb-3">No hay publicaciones que coincidan con los criterios de búsqueda seleccionados.</p>
             <div>
-                <button type="button" class="btn btn-outline-warning btn-sm rounded-pill" onclick="document.getElementById('btnRestablecerFiltros').click();">
+                <a href="{{ url_for('servicios') }}" class="btn btn-outline-warning btn-sm rounded-pill">
                     <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar filtros
-                </button>
+                </a>
             </div>
         </div>
     </div>

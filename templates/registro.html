@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block titulo %}Crear Cuenta - Grupo Megaseg{% endblock %}
+
+{% block content %}
+<!-- ==============================================================================
+     PANTALLA DE REGISTRO DE USUARIOS (ROLES: CLIENTE, GESTOR DE CATÁLOGO, ADMIN)
+     ============================================================================== -->
+<section class="py-5 bg-dark">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <!-- Tarjeta del Formulario de Registro -->
+                <div class="card border border-secondary shadow-lg rounded-4 overflow-hidden bg-navy-light text-white">
+                    <div class="card-header bg-dark p-4 text-center border-bottom border-secondary">
+                        <img src="{{ url_for('static', filename='imagenes/logo-megaseg.png') }}" alt="Logo Megaseg" height="60" class="mb-3">
+                        <h1 class="h4 fw-bold text-white mb-1">Registro en Plataforma MEGASEG</h1>
+                        <p class="text-light-muted small mb-0">
+                            Crea tu cuenta de Cliente (acceso inmediato) o solicita rol de Gestor / Admin (requiere admisión)
+                        </p>
+                    </div>
+
+                    <div class="card-body p-4 p-md-5">
+                        <form method="POST" action="{{ url_for('registro') }}" novalidate>
+                            {{ form.hidden_tag() }}
+
+                            <!-- 1. Nombre Completo -->
+                            <div class="mb-3">
+                                {{ form.nombre.label(class="form-label fw-semibold text-warning small") }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-dark border-secondary text-warning"><i class="bi bi-person-fill"></i></span>
+                                    {{ form.nombre(class="form-control bg-dark text-white border-secondary" + (" is-invalid" if form.nombre.errors else ""), placeholder="Ej: Juan Pérez / Empresa S.A.", autocomplete="name") }}
+                                </div>
+                                {% for error in form.nombre.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- 2. Usuario (Login) -->
+                            <div class="mb-3">
+                                {{ form.usuario.label(class="form-label fw-semibold text-warning small") }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-dark border-secondary text-warning"><i class="bi bi-at"></i></span>
+                                    {{ form.usuario(class="form-control bg-dark text-white border-secondary" + (" is-invalid" if form.usuario.errors else ""), placeholder="Nombre de usuario único", autocomplete="username") }}
+                                </div>
+                                {% for error in form.usuario.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <!-- 3. Correo Electrónico -->
+                                <div class="col-md-6">
+                                    {{ form.email.label(class="form-label fw-semibold text-warning small") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-dark border-secondary text-warning"><i class="bi bi-envelope-fill"></i></span>
+                                        {{ form.email(class="form-control bg-dark text-white border-secondary" + (" is-invalid" if form.email.errors else ""), placeholder="correo@ejemplo.com", autocomplete="email") }}
+                                    </div>
+                                    {% for error in form.email.errors %}
+                                        <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- 4. Teléfono / Celular -->
+                                <div class="col-md-6">
+                                    {{ form.telefono.label(class="form-label fw-semibold text-warning small") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-dark border-secondary text-success"><i class="bi bi-whatsapp"></i></span>
+                                        {{ form.telefono(class="form-control bg-dark text-white border-secondary" + (" is-invalid" if form.telefono.errors else ""), placeholder="0982900705", autocomplete="tel") }}
+                                    </div>
+                                    {% for error in form.telefono.errors %}
+                                        <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- 5. Rol Solicitado -->
+                            <div class="mb-4">
+                                {{ form.rol.label(class="form-label fw-semibold text-warning small") }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-dark border-secondary text-warning"><i class="bi bi-shield-lock-fill"></i></span>
+                                    {{ form.rol(class="form-select bg-dark text-white border-secondary", id="selectRolRegistro") }}
+                                </div>
+                                <div class="p-3 mt-2 rounded-3 bg-dark border border-secondary small text-light-muted" id="ayudaRol">
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <i class="bi bi-shield-check text-warning fs-6"></i>
+                                        <strong class="text-white">Política de Acceso:</strong>
+                                    </div>
+                                    <span id="textoAyudaRol">Permite consultar el catálogo y cotizar en línea inmediatamente.</span>
+                                </div>
+                                <div class="alert alert-warning py-2 px-3 mt-2 mb-0 small border-warning bg-opacity-10 bg-warning text-warning d-flex align-items-center gap-2">
+                                    <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+                                    <span>Para todos los roles excepto <strong>Cliente</strong>, la cuenta necesita ser admitida por un administrador antes de poder iniciar sesión.</span>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-4">
+                                <!-- 6. Contraseña -->
+                                <div class="col-md-6">
+                                    {{ form.password.label(class="form-label fw-semibold text-warning small") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-dark border-secondary text-warning"><i class="bi bi-key-fill"></i></span>
+                                        {{ form.password(class="form-control bg-dark text-white border-secondary" + (" is-invalid" if form.password.errors else ""), placeholder="Mínimo 8 caracteres", id="inputPassword") }}
+                                    </div>
+                                    {% for error in form.password.errors %}
+                                        <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- 7. Confirmar Contraseña -->
+                                <div class="col-md-6">
+                                    {{ form.confirm_password.label(class="form-label fw-semibold text-warning small") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-dark border-secondary text-warning"><i class="bi bi-check2-circle"></i></span>
+                                        {{ form.confirm_password(class="form-control bg-dark text-white border-secondary" + (" is-invalid" if form.confirm_password.errors else ""), placeholder="Repite la contraseña", id="inputConfirmPassword") }}
+                                    </div>
+                                    {% for error in form.confirm_password.errors %}
+                                        <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- Botón de Envío -->
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-warning btn-lg fw-bold text-dark rounded-pill shadow-sm">
+                                    <i class="bi bi-person-check-fill me-2"></i>Crear Cuenta
+                                </button>
+                            </div>
+
+                            <div class="text-center pt-3 border-top border-secondary">
+                                <span class="small text-muted">¿Ya tienes una cuenta registrada?</span>
+                                <a href="{{ url_for('login') }}" class="small text-warning fw-semibold text-decoration-none ms-1">
+                                    Inicia sesión aquí
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const selectRol = document.getElementById('selectRolRegistro');
+    const textoAyuda = document.getElementById('textoAyudaRol');
+
+    const descripciones = {
+        'Cliente': 'Cuenta estándar para clientes: Acceso inmediato sin espera para consultar el catálogo y cotizar por WhatsApp.',
+        'Gestor de Catálogo': 'Encargado de catálogo: Requiere ser admitido por cualquier Administrador antes de poder acceder al sistema y gestionar productos/servicios.',
+        'Administrador': 'Control total del sistema: Requiere ser admitido por cualquier Administrador existente antes de poder ingresar.'
+    };
+
+    if (selectRol && textoAyuda) {
+        selectRol.addEventListener('change', function() {
+            textoAyuda.textContent = descripciones[this.value] || 'Selecciona un rol.';
+        });
+        textoAyuda.textContent = descripciones[selectRol.value] || 'Selecciona un rol.';
+    }
+</script>
+{% endblock %}

@@ -1,7 +1,7 @@
 # ==============================================================================
 # PROYECTO: MEGASEG SEGURIDAD INTEGRAL - MODELO DE USUARIOS Y AUTENTICACIÓN
 # ==============================================================================
-# Implementa el modelo de usuario para Flask-Login y control de acceso.
+# Implementa el modelo de usuario para Flask-Login y control de acceso (RBAC).
 # ==============================================================================
 
 from flask_login import UserMixin
@@ -12,24 +12,36 @@ import bcrypt
 class User(UserMixin):
     """
     Modelo de Usuario compatible con Flask-Login.
-    Representa a los administradores del sistema Megaseg.
+    Representa a clientes, gestores de catálogo, operadores y administradores de Megaseg.
     """
-    def __init__(self, id, usuario, password=None, rol="Administrador", nombre="Admin", email=""):
+    def __init__(self, id, usuario, password=None, rol="Cliente", nombre="Usuario", email="", telefono="", activo=1):
         self.id = id
         self.usuario = usuario
         self.password = password
-        self.rol = rol or "Administrador"
+        self.rol = rol or "Cliente"
         self.nombre = nombre or usuario
         self.email = email or ""
+        self.telefono = telefono or ""
+        self.activo = bool(activo)
+
+    @property
+    def is_active(self):
+        """Requerido por Flask-Login: determina si la cuenta está habilitada."""
+        return self.activo
 
     def is_admin(self):
-        """Indica si el usuario cuenta con privilegios administrativos."""
+        """Indica si el usuario cuenta con privilegios administrativos totales."""
         return (self.rol or "").lower() in ("admin", "administrador")
+
+    def can_manage_catalog(self):
+        """Indica si el usuario tiene permiso para crear, editar o actualizar el catálogo."""
+        return self.has_role('Administrador', 'Gestor de Catálogo', 'Gestor de Catalogo', 'Supervisor')
 
     def has_role(self, *roles):
         """Comprueba si el usuario pertenece a uno de los roles solicitados."""
-        roles_limpios = [r.lower() for r in roles]
-        return (self.rol or "").lower() in roles_limpios
+        roles_limpios = [r.lower().replace('á', 'a').replace('é', 'e').replace('í', 'i').replace('ó', 'o').replace('ú', 'u') for r in roles]
+        mi_rol = (self.rol or "").lower().replace('á', 'a').replace('é', 'e').replace('í', 'i').replace('ó', 'o').replace('ú', 'u')
+        return mi_rol in roles_limpios
 
     def verificar_password(self, password_plana):
         """Verifica hashes almacenados con Werkzeug o Bcrypt; nunca texto plano."""
@@ -68,9 +80,11 @@ class User(UserMixin):
                 id=fila['id'],
                 usuario=fila['usuario'],
                 password=fila['password'],
-                rol=fila.get('rol', 'Administrador'),
-                nombre=fila.get('nombre', 'Administrador'),
-                email=fila.get('email', '')
+                rol=fila.get('rol', 'Cliente'),
+                nombre=fila.get('nombre', fila['usuario']),
+                email=fila.get('email', ''),
+                telefono=fila.get('telefono', ''),
+                activo=fila.get('activo', 1)
             )
         return None
 
@@ -89,8 +103,10 @@ class User(UserMixin):
                 id=fila['id'],
                 usuario=fila['usuario'],
                 password=fila['password'],
-                rol=fila.get('rol', 'Administrador'),
-                nombre=fila.get('nombre', 'Administrador'),
-                email=fila.get('email', '')
+                rol=fila.get('rol', 'Cliente'),
+                nombre=fila.get('nombre', fila['usuario']),
+                email=fila.get('email', ''),
+                telefono=fila.get('telefono', ''),
+                activo=fila.get('activo', 1)
             )
         return None

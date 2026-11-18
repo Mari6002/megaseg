@@ -17,9 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const chipsCategoria = document.querySelectorAll(".filtro-chip");
     const contenedorCards = document.getElementById("contenedorServicios");
     const sinResultados = document.getElementById("sinResultados");
-    const contadorVisibles = document.getElementById("contadorVisibles");
-    const btnRestablecer = document.getElementById("btnRestablecerFiltros");
-    const contenedorRestablecer = document.getElementById("btnRestablecerContenedor");
 
     if (contenedorCards) {
         const tarjetas = Array.from(contenedorCards.querySelectorAll(".service-col"));
@@ -95,12 +92,35 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
     }
-    }
 
     // --------------------------------------------------------------------------
     // 2. TOGGLE INTERACTIVO "VER MÁS DETALLES" / "VER MENOS"
     // --------------------------------------------------------------------------
-    const togglesDetalle = document.querySelectorAll(".btn-toggle-detalle");
+    window.toggleDetalles = function(btn) {
+        const parentCard = btn.closest(".tarjeta-producto, .service-card");
+        if (!parentCard) return;
+        const desplegable = parentCard.querySelector(".detalles-desplegable, .collapse");
+        if (!desplegable) return;
+
+        if (window.bootstrap && bootstrap.Collapse) {
+            const bsCollapse = bootstrap.Collapse.getOrCreateInstance(desplegable);
+            bsCollapse.toggle();
+        } else {
+            const isHidden = desplegable.style.display === "none" || !desplegable.classList.contains("show");
+            desplegable.style.display = isHidden ? "block" : "none";
+            btn.classList.toggle("is-expanded", isHidden);
+            const icon = btn.querySelector("i.bi-chevron-down, i.bi-chevron-up, .icon-chevron");
+            if (icon) {
+                icon.className = isHidden ? "bi bi-chevron-up ms-1" : "bi bi-chevron-down ms-1";
+            }
+            const textSpan = btn.querySelector(".btn-text");
+            if (textSpan) {
+                textSpan.textContent = isHidden ? "Ocultar detalles" : "Ver más detalles";
+            }
+        }
+    };
+
+    const togglesDetalle = document.querySelectorAll(".btn-toggle-detalle, .btn-ver-mas");
 
     togglesDetalle.forEach(btn => {
         const targetSelector = btn.getAttribute("data-bs-target");
@@ -113,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
         targetEl.addEventListener("show.bs.collapse", () => {
             const spanText = btn.querySelector(".btn-text");
             const icon = btn.querySelector(".toggle-icon");
-            if (spanText) spanText.textContent = "Ver menos";
+            if (spanText) spanText.textContent = "Ocultar detalles";
             if (icon) {
                 icon.classList.remove("bi-chevron-down");
                 icon.classList.add("bi-chevron-up");

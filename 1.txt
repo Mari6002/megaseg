@@ -1,0 +1,65 @@
+1.-Ir a la carpeta del proyecto
+
+2. Crear el entorno virtual
+PowerShell
+python -m venv .venv
+3. Activar el entorno virtual
+
+PowerShell:
+
+PowerShell
+.\.venv\Scripts\Activate.ps1
+
+Si da error de ejecución de scripts:
+
+PowerShell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+
+y vuelve a ejecutar:
+
+PowerShell
+.\.venv\Scripts\Activate.ps1
+
+Cuando se active verás algo así:
+
+Plain Text
+(.venv) PS C:\Users\quiar\Documents\GitHub\megaseg>
+4. Instalar dependencias
+PowerShell
+pip install -r requirements.txt
+5. Crear el archivo .env
+
+En la raíz del proyecto:
+Crea el archivo .env
+
+Desde la misma terminal ejecuta:
+
+PowerShell
+notepad .env
+
+Cuando se abra el Bloc de notas, pega esto:
+
+PowerShell
+env no es totalmente compatible. El resaltado de sintaxis se basa en PowerShell.
+SECRET_KEY=megaseg_clave_secreta
+
+Guárdalo y cierra el Bloc de notas.
+
+Prueba de nuevo
+
+En la terminal:
+
+PowerShell
+python app.py
+Si sigue apareciendo el mismo error
+
+Necesitamos ver cómo está leyendo las variables tu aplicación. Ejecuta:
+
+PowerShell
+Get-Content app.py | Select-Object -First 60
+
+y pega aquí el resultado para revisar las primeras líneas de app.py, especialmente donde está la línea 40 que genera:
+ no te olvides de el notepad .env.exmple donde te dice que campos debes llenas para que funcione bien como es
+ 
+Plain Text
+RuntimeError: Configura SECRET_KEY en el entorno antes de iniciar la aplicación.

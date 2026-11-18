@@ -3,6 +3,11 @@
 from getpass import getpass
 from pathlib import Path
 import os
+import sys
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from dotenv import load_dotenv, set_key
 from werkzeug.security import generate_password_hash
@@ -10,7 +15,6 @@ from werkzeug.security import generate_password_hash
 from conexion.conexion import get_db_connection
 
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
 ENV_PATH = PROJECT_ROOT / '.env'
 
 

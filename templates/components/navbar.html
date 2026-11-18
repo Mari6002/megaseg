@@ -1,6 +1,6 @@
 <!-- ==============================================================================
      COMPONENTE MODULAR: BARRA SUPERIOR Y MENÚ DE NAVEGACIÓN
-     Grupo de Seguridad Megaseg Cía. Ltda.
+     Grupo de Seguridad Megaseg Cía. Ltda. — Estilo NexoDigital
      ============================================================================== -->
 
 <!-- 1. Topbar Superior de Emergencias y Estado en Vivo -->
@@ -18,8 +18,9 @@
                 <i class="bi bi-facebook text-info"></i> fb.com/megaseg.ec
             </a>
             {% if current_user.is_authenticated %}
-                <span class="badge bg-primary text-white">
-                    <i class="bi bi-shield-check me-1"></i>Admin: {{ current_user.nombre }}
+                <span class="badge bg-primary text-white d-flex align-items-center gap-1">
+                    <i class="bi bi-shield-check"></i>
+                    <span>{{ current_user.rol }}: <strong>{{ current_user.nombre }}</strong></span>
                 </span>
                 <form method="POST" action="{{ url_for('logout') }}" class="m-0">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -28,8 +29,11 @@
                     </button>
                 </form>
             {% else %}
+                <a href="{{ url_for('registro') }}" class="btn btn-sm btn-outline-warning py-0 px-2 rounded-pill text-warning fw-semibold me-1">
+                    <i class="bi bi-person-plus-fill me-1"></i>Registrarse
+                </a>
                 <a href="{{ url_for('login') }}" class="btn btn-sm btn-light py-0 px-2 rounded-pill text-dark fw-semibold">
-                    <i class="bi bi-lock-fill text-danger me-1"></i>Acceso Admin
+                    <i class="bi bi-lock-fill text-danger me-1"></i>Ingresar
                 </a>
             {% endif %}
         </div>
@@ -37,7 +41,7 @@
 </div>
 
 <!-- 2. Navbar Principal -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-navy sticky-top shadow-sm py-2">
+<nav class="navbar navbar-expand-xl navbar-dark bg-navy sticky-top shadow-sm py-2">
     <div class="container">
         <!-- Logotipo e Identidad de Marca -->
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2 py-1" href="{{ url_for('inicio') }}">
@@ -55,70 +59,72 @@
 
         <!-- Lista de Enlaces según Sesión -->
         <div class="collapse navbar-collapse" id="menuNav">
-            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
-                <!-- Enlaces Públicos -->
+            <ul class="navbar-nav ms-auto align-items-xl-center gap-xl-1">
+                <!-- Enlace Inicio (tal y como lo ve el usuario) -->
                 <li class="nav-item">
                     <a class="nav-link px-2 {{ 'active' if request.endpoint == 'inicio' else '' }}" href="{{ url_for('inicio') }}">
                         <i class="bi bi-house-door me-1"></i>Inicio
                     </a>
                 </li>
+
+                <!-- Enlace Catálogo de Servicios & Equipos -->
                 <li class="nav-item">
-                    <a class="nav-link px-2" href="{{ url_for('inicio') }}#quienes-somos">
-                        <i class="bi bi-shield-shaded me-1"></i>¿Quiénes Somos?
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link px-2 {{ 'active' if request.endpoint in ['servicios', 'nuevo_servicio', 'editar_servicio'] else '' }}" href="{{ url_for('servicios') }}">
+                    <a class="nav-link px-2 {{ 'active' if request.endpoint in ['servicios', 'editar_servicio'] else '' }}" href="{{ url_for('servicios') }}">
                         <i class="bi bi-grid-fill me-1"></i>Servicios & Equipos
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link px-2" href="{{ url_for('inicio') }}#beneficios">
-                        <i class="bi bi-award me-1"></i>Ventajas
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link px-2" href="{{ url_for('inicio') }}#solicitudes">
-                        <i class="bi bi-calculator me-1"></i>Cotizar Online
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link px-2" href="{{ url_for('inicio') }}#contacto">
-                        <i class="bi bi-geo-alt me-1"></i>Contacto
-                    </a>
-                </li>
 
-                <!-- Opciones Exclusivas si el Administrador ha Iniciado Sesión -->
-                {% if current_user.is_authenticated and current_user.is_admin() %}
-                    <li class="nav-item dropdown ms-lg-2">
-                        <a class="nav-link dropdown-toggle text-warning fw-semibold px-2 py-1 rounded bg-dark border border-warning" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-gear-fill me-1"></i>Gestión Catálogo
+                {% if current_user.is_authenticated %}
+                    <!-- Pestaña para Agregar un Servicio o Producto (Administrador y Gestor de Catálogo) -->
+                    {% if current_user.can_manage_catalog() %}
+                    <li class="nav-item">
+                        <a class="nav-link px-2 text-warning fw-semibold {{ 'active' if request.endpoint == 'nuevo_servicio' else '' }}" href="{{ url_for('nuevo_servicio') }}">
+                            <i class="bi bi-plus-circle-fill me-1 text-warning"></i>Agregar Producto/Servicio
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
-                            <li>
-                                <a class="dropdown-item d-flex align-items-center text-success fw-semibold" href="{{ url_for('nuevo_servicio') }}">
-                                    <i class="bi bi-plus-circle-fill me-2 fs-5"></i>Subir Servicio o Producto
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item d-flex align-items-center" href="{{ url_for('servicios') }}">
-                                    <i class="bi bi-pencil-square me-2 text-primary"></i>Ver y Editar Catálogo
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form method="POST" action="{{ url_for('logout') }}" class="m-0">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                    <button type="submit" class="dropdown-item d-flex align-items-center text-danger">
-                                        <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión Admin
-                                    </button>
-                                </form>
-                            </li>
-                        </ul>
                     </li>
+                    {% endif %}
+
+                    <!-- Pestaña Auditoría & Logs (Administrador, Auditor, Supervisor) -->
+                    {% if current_user.has_role('Administrador', 'Auditor', 'Supervisor') %}
+                    <li class="nav-item">
+                        <a class="nav-link px-2 {{ 'active' if request.endpoint == 'admin_logs' else '' }}" href="{{ url_for('admin_logs') }}">
+                            <i class="bi bi-shield-check me-1 text-danger"></i>Auditor
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <!-- Pestaña Roles & Usuarios (Exclusivo Administrador) -->
+                    {% if current_user.is_admin() %}
+                    <li class="nav-item">
+                        <a class="nav-link px-2 {{ 'active' if request.endpoint == 'admin_usuarios' else '' }}" href="{{ url_for('admin_usuarios') }}">
+                            <i class="bi bi-people me-1 text-success"></i>Roles
+                        </a>
+                    </li>
+                    {% endif %}
                 {% else %}
+                    <!-- Enlaces Informativos para Clientes Públicos -->
+                    <li class="nav-item">
+                        <a class="nav-link px-2" href="{{ url_for('inicio') }}#quienes-somos">
+                            <i class="bi bi-shield-shaded me-1"></i>¿Quiénes Somos?
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-2" href="{{ url_for('inicio') }}#beneficios">
+                            <i class="bi bi-award me-1"></i>Ventajas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-2" href="{{ url_for('inicio') }}#solicitudes">
+                            <i class="bi bi-calculator me-1"></i>Cotizar Online
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-2" href="{{ url_for('inicio') }}#contacto">
+                            <i class="bi bi-geo-alt me-1"></i>Contacto
+                        </a>
+                    </li>
                     <!-- Botón Destacado WhatsApp para Clientes -->
-                    <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+                    <li class="nav-item ms-xl-2 mt-2 mt-xl-0">
                         <a href="https://wa.me/593982900705?text=Hola%20Grupo%20Megaseg,%20quisiera%20solicitar%20asesor%C3%ADa%20personalizada" 
                            target="_blank" rel="noopener noreferrer" 
                            class="btn btn-verde btn-sm rounded-pill px-3 shadow-sm d-flex align-items-center justify-content-center gap-1">

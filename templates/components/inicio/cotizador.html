@@ -1,0 +1,85 @@
+<!-- ==============================================================================
+     SECCIÓN 7: COTIZADOR INTERACTIVO ONLINE
+     ============================================================================== -->
+<section id="solicitudes" class="py-5 bg-navy-light text-white">
+    <div class="container">
+        <div class="card bg-dark border border-secondary rounded-4 p-4 p-md-5 shadow-lg mx-auto quote-card">
+            <div class="text-center mb-4">
+                <span class="badge bg-danger px-3 py-1 text-uppercase fw-semibold mb-2">Cotización Inmediata</span>
+                <h2 class="h3 fw-bold text-white">Solicita tu Asesoría Personalizada</h2>
+                <p class="text-muted small">Selecciona lo que deseas proteger y te enviaremos una propuesta formal directa a tu WhatsApp.</p>
+            </div>
+
+            <form id="formCotizadorWeb" data-whatsapp="{{ empresa.whatsapp }}">
+                <div class="row g-4">
+                    <div class="col-md-6 border-end-md">
+                        <label class="form-label fw-bold text-warning small text-uppercase">1. Tipo de Inmueble / Instalación</label>
+                        <div class="d-flex flex-column gap-2 mb-3">
+                            <label class="btn btn-outline-secondary text-start text-white p-2 d-flex align-items-center gap-2">
+                                <input type="radio" name="cotiz_tipo" value="Hogar / Residencia" checked>
+                                <i class="bi bi-house-door-fill text-warning"></i> Hogar / Residencia
+                            </label>
+                            <label class="btn btn-outline-secondary text-start text-white p-2 d-flex align-items-center gap-2">
+                                <input type="radio" name="cotiz_tipo" value="Comercio / Negocio">
+                                <i class="bi bi-shop text-warning"></i> Comercio / Negocio
+                            </label>
+                            <label class="btn btn-outline-secondary text-start text-white p-2 d-flex align-items-center gap-2">
+                                <input type="radio" name="cotiz_tipo" value="Empresa / Industria">
+                                <i class="bi bi-building text-warning"></i> Empresa / Industria / Bodega
+                            </label>
+                            <label class="btn btn-outline-secondary text-start text-white p-2 d-flex align-items-center gap-2">
+                                <input type="radio" name="cotiz_tipo" value="Vehicular / Finca">
+                                <i class="bi bi-truck text-warning"></i> Vehículos / Finca
+                            </label>
+                        </div>
+
+                        <label class="form-label fw-bold text-warning small text-uppercase">2. Servicios Requeridos</label>
+                        <div class="d-flex flex-column gap-2">
+                            <label class="small text-light d-flex align-items-center gap-2">
+                                <input type="checkbox" name="cotiz_serv" value="Cámaras CCTV" checked> Cámaras de Seguridad CCTV & IP
+                            </label>
+                            <label class="small text-light d-flex align-items-center gap-2">
+                                <input type="checkbox" name="cotiz_serv" value="Cerco Eléctrico y Alarmas"> Alarmas y Cercos Eléctricos Perimetrales
+                            </label>
+                            <label class="small text-light d-flex align-items-center gap-2">
+                                <input type="checkbox" name="cotiz_serv" value="Guardianía Privada"> Guardianía Privada Física Acreditada
+                            </label>
+                            <label class="small text-light d-flex align-items-center gap-2">
+                                <input type="checkbox" name="cotiz_serv" value="Rastreo Satelital GPS"> Rastreo Satelital GPS de Vehículos
+                            </label>
+                            <label class="small text-light d-flex align-items-center gap-2">
+                                <input type="checkbox" name="cotiz_serv" value="Automatización"> Automatización de Portones y Control de Acceso
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 d-flex flex-column justify-content-between">
+                        <div>
+                            <label class="form-label fw-bold text-warning small text-uppercase">3. Datos de Contacto</label>
+                            <div class="mb-3">
+                                <label class="visually-hidden" for="cotiz_nombre">Nombre completo o empresa</label>
+                                <input type="text" id="cotiz_nombre" name="cotiz_nombre" class="form-control bg-secondary text-white border-0" placeholder="Nombre completo o Empresa *" autocomplete="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="visually-hidden" for="cotiz_telefono">Teléfono o WhatsApp</label>
+                                <input type="tel" id="cotiz_telefono" name="cotiz_telefono" class="form-control bg-secondary text-white border-0" placeholder="Teléfono / WhatsApp *" autocomplete="tel" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="visually-hidden" for="cotiz_ciudad">Ciudad o sector</label>
+                                <input type="text" id="cotiz_ciudad" name="cotiz_ciudad" class="form-control bg-secondary text-white border-0" placeholder="Ciudad o Sector (ej. Lago Agrio, Centro)" autocomplete="address-level2">
+                            </div>
+                            <div class="mb-3">
+                                <label class="visually-hidden" for="cotiz_mensaje">Detalles adicionales de la cotización</label>
+                                <textarea id="cotiz_mensaje" name="cotiz_mensaje" rows="3" class="form-control bg-secondary text-white border-0" placeholder="Detalles adicionales (cantidad de cámaras, metros de cerco...)"></textarea>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-verde btn-lg w-100 rounded-pill shadow-sm mt-3">
+                            <i class="bi bi-whatsapp me-2"></i>Enviar Cotización a WhatsApp
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>

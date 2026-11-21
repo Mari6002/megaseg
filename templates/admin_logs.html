@@ -47,6 +47,11 @@
                            value="{{ busqueda or '' }}">
                 </div>
 
+                <div class="alert alert-dark border border-secondary small mb-4" role="note">
+                    <strong class="text-warning">Cómo interpretar la auditoría:</strong>
+                    <span class="text-light-muted">Entidad indica qué tipo de registro fue afectado; entidad/ID señala el identificador específico; acción indica la operación; detalles describe el resultado.</span>
+                </div>
+
                 <div class="col-md-3">
                     <label for="filtroAccion" class="form-label small fw-semibold text-warning mb-1">
                         <i class="bi bi-funnel me-1"></i>Acción Realizada
@@ -122,14 +127,33 @@
                                     <span class="badge bg-danger-subtle text-danger border border-danger"><i class="bi bi-trash me-1"></i>ELIMINAR</span>
                                 {% elif log.accion == 'LOGIN' %}
                                     <span class="badge bg-secondary text-white"><i class="bi bi-box-arrow-in-right me-1"></i>LOGIN</span>
+                                {% elif log.accion == 'LOGOUT' %}
+                                    <span class="badge bg-secondary text-white"><i class="bi bi-box-arrow-right me-1"></i>LOGOUT</span>
+                                {% elif log.accion == 'REGISTRO' %}
+                                    <span class="badge bg-info-subtle text-info border border-info"><i class="bi bi-person-plus me-1"></i>REGISTRO</span>
+                                {% elif log.accion == 'CAMBIO_ROL' %}
+                                    <span class="badge bg-primary-subtle text-primary border border-primary"><i class="bi bi-person-badge me-1"></i>CAMBIO DE ROL</span>
+                                {% elif log.accion == 'CAMBIO_ESTADO' %}
+                                    <span class="badge bg-primary-subtle text-primary border border-primary"><i class="bi bi-toggle-on me-1"></i>CAMBIO DE ESTADO</span>
                                 {% else %}
                                     <span class="badge bg-dark border border-secondary text-light">{{ log.accion }}</span>
                                 {% endif %}
                             </td>
                             <td>
-                                <span class="badge bg-dark border border-secondary text-warning text-uppercase small">
-                                    {{ log.entidad }}
-                                </span>
+                                {% if log.entidad == 'auth' %}
+                                    <span class="badge bg-dark border border-secondary text-warning small">Autenticación / Cuenta</span>
+                                {% elif log.entidad == 'servicio' %}
+                                    <span class="badge bg-dark border border-secondary text-warning small">Catálogo / Servicio o producto</span>
+                                {% elif log.entidad == 'usuario' %}
+                                    <span class="badge bg-dark border border-secondary text-warning small">Usuarios / Roles</span>
+                                {% elif log.entidad == 'resena' %}
+                                    <span class="badge bg-dark border border-secondary text-warning small">Moderación / Reseña</span>
+                                {% else %}
+                                    <span class="badge bg-dark border border-secondary text-warning small">{{ log.entidad|replace('_',' ')|title }}</span>
+                                {% endif %}
+                                {% if log.entidad_id %}
+                                    <small class="d-block text-muted mt-1">Identificador: #{{ log.entidad_id }}</small>
+                                {% endif %}
                             </td>
                             <td class="small text-light">
                                 {{ log.detalles }}

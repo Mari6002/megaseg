@@ -3,9 +3,8 @@
 import os
 from pathlib import Path
 
-from werkzeug.security import generate_password_hash
-
 from conexion.datos_iniciales import CATEGORIAS_INICIALES, SERVICIOS_INICIALES
+from security.passwords import hash_password
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -122,7 +121,7 @@ def _crear_administrador_si_no_existe(conn):
             ''',
             (
                 usuario,
-                generate_password_hash(password),
+                hash_password(password),
                 'Administrador',
                 'Administrador Megaseg',
                 'contacto@megaseg.ec',
@@ -259,5 +258,4 @@ def _actualizar_datos_plantilla_servicios(conn):
         conn.commit()
     finally:
         cursor.close()
-
 

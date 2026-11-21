@@ -96,7 +96,7 @@
                                         <div class="input-group">
                                             <span class="input-group-text bg-dark border-secondary text-success fw-bold">$</span>
                                             {{ form.precio(class="form-control bg-dark text-white border-secondary" + (" is-invalid" if form.precio.errors else ""), placeholder="0.00", step="0.01") }}
-                                            <span class="input-group-text bg-dark border-secondary text-muted small">USD (0 = A Cotizar)</span>
+                                            <span class="input-group-text bg-dark border-secondary text-muted small">USD · Opcional</span>
                                         </div>
                                         {% for error in form.precio.errors %}
                                             <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
@@ -218,6 +218,34 @@
                                     {{ form.ficha_tecnica(class="form-control bg-dark text-white border-secondary", rows="3", placeholder="Ej: Incluye: 4 Cámaras ColorVu, DVR 4 canales, Disco 1TB Western Digital, baluns y fuentes de poder. Resolución: Full HD.") }}
                                     <small class="text-muted">Detalles específicos que se mostrarán al hacer clic en <em>"Ver más detalles"</em>.</small>
                                 </div>
+
+                                <!-- Campos adicionales definidos por el administrador -->
+                                <div class="mt-4">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <h6 class="text-warning text-uppercase fw-bold small mb-0">
+                                            <i class="bi bi-list-columns-reverse me-1"></i>Campos adicionales
+                                        </h6>
+                                        <button type="button" id="agregarCampoExtra" class="btn btn-outline-warning btn-sm rounded-pill">
+                                            <i class="bi bi-plus-lg me-1"></i>Agregar campo
+                                        </button>
+                                    </div>
+                                    <p class="small text-muted">Añade títulos y detalles personalizados para esta publicación.</p>
+                                    <div id="camposExtras" class="d-grid gap-2">
+                                        {% for campo in campos_extra %}
+                                        <div class="campo-extra row g-2">
+                                            <div class="col-md-4">
+                                                <input type="text" name="campo_extra_titulo" class="form-control bg-dark text-white border-secondary" maxlength="100" value="{{ campo.titulo }}" placeholder="Título del campo">
+                                            </div>
+                                            <div class="col-md-7">
+                                                <textarea name="campo_extra_detalle" class="form-control bg-dark text-white border-secondary" rows="2" maxlength="2000" placeholder="Detalle">{{ campo.detalle }}</textarea>
+                                            </div>
+                                            <div class="col-md-1 d-flex align-items-start">
+                                                <button type="button" class="btn btn-outline-danger w-100 quitar-campo-extra" title="Eliminar campo"><i class="bi bi-trash"></i></button>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- SECCIÓN 4: INTERRUPTORES DE PUBLICACIÓN -->
@@ -225,7 +253,10 @@
                                 <div class="col-sm-6">
                                     <div class="form-check form-switch p-2 bg-dark rounded border border-secondary">
                                         {{ form.disponible(class="form-check-input ms-0 me-2", id="checkDisponible") }}
-                                        <label class="form-check-label small text-light" for="checkDisponible">Disponible para venta / contratación</label>
+                                        <label class="form-check-label small text-light" for="checkDisponible">
+                                            Disponible ahora
+                                            <span class="d-block text-muted">Si se desactiva, se mostrará como “Próximamente”.</span>
+                                        </label>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
@@ -309,6 +340,33 @@
             mostrarVistaPrevia(urlTemporal);
         } else {
             mostrarVistaPrevia(campoImagenUrl.value.trim() || imagenActual);
+        }
+    });
+
+    const contenedorCamposExtras = document.getElementById('camposExtras');
+    const botonAgregarCampoExtra = document.getElementById('agregarCampoExtra');
+
+    botonAgregarCampoExtra.addEventListener('click', function() {
+        const fila = document.createElement('div');
+        fila.className = 'campo-extra row g-2';
+        fila.innerHTML = `
+            <div class="col-md-4">
+                <input type="text" name="campo_extra_titulo" class="form-control bg-dark text-white border-secondary" maxlength="100" placeholder="Título del campo">
+            </div>
+            <div class="col-md-7">
+                <textarea name="campo_extra_detalle" class="form-control bg-dark text-white border-secondary" rows="2" maxlength="2000" placeholder="Detalle"></textarea>
+            </div>
+            <div class="col-md-1 d-flex align-items-start">
+                <button type="button" class="btn btn-outline-danger w-100 quitar-campo-extra" title="Eliminar campo"><i class="bi bi-trash"></i></button>
+            </div>`;
+        contenedorCamposExtras.appendChild(fila);
+        fila.querySelector('input').focus();
+    });
+
+    contenedorCamposExtras.addEventListener('click', function(evento) {
+        const boton = evento.target.closest('.quitar-campo-extra');
+        if (boton) {
+            boton.closest('.campo-extra').remove();
         }
     });
 </script>

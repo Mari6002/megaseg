@@ -143,16 +143,18 @@ def crear_servicio(datos):
     """Inserta un servicio validado con todos los campos de la plantilla dinámica."""
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute(
-        '''
-        INSERT INTO servicios (
-            tipo_servicio_id, nombre, precio_base, imagen, descripcion,
-            disponible, es_producto, destacado, tipo_producto, garantia,
-            zona_cobertura, disponibilidad_atencion, modalidad_pago, ficha_tecnica, whatsapp_msg
-        )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        RETURNING id
-        ''',
+    try:
+        cursor.execute(
+            '''
+            INSERT INTO servicios (
+                tipo_servicio_id, nombre, precio_base, imagen, descripcion,
+                disponible, es_producto, destacado, tipo_producto, garantia,
+                zona_cobertura, disponibilidad_atencion, modalidad_pago, ficha_tecnica,
+                whatsapp_msg, campos_extra
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s::jsonb)
+            RETURNING id
+            ''',
         (
             datos['tipo_servicio_id'],
             datos['nombre'],
@@ -160,7 +162,7 @@ def crear_servicio(datos):
             datos['imagen'],
             datos['descripcion'],
             bool(datos['disponible']),
-            datos['es_producto'],
+            int(bool(datos['es_producto'])),
             bool(datos['destacado']),
             datos.get('tipo_producto') or ('Equipo Físico' if datos['es_producto'] else 'Servicio Operativo'),
             datos.get('garantia', ''),
@@ -168,9 +170,32 @@ def crear_servicio(datos):
             datos.get('disponibilidad_atencion', ''),
             datos.get('modalidad_pago', ''),
             datos.get('ficha_tecnica', ''),
-            datos.get('whatsapp_msg', '')
+            datos.get('whatsapp_msg', ''),
+            datos.get('campos_extra', '[]')
         )
-    )
+        )
+    except Exception:
+        conn.rollback()
+        cursor.execute(
+            '''
+            INSERT INTO servicios (
+                tipo_servicio_id, nombre, precio_base, imagen, descripcion,
+                disponible, es_producto, destacado, tipo_producto, garantia,
+                zona_cobertura, disponibilidad_atencion, modalidad_pago, ficha_tecnica, whatsapp_msg
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING id
+            ''',
+            (
+                datos['tipo_servicio_id'], datos['nombre'], datos['precio_base'], datos['imagen'],
+                datos['descripcion'], bool(datos['disponible']), int(bool(datos['es_producto'])),
+                bool(datos['destacado']),
+                datos.get('tipo_producto') or ('Equipo Físico' if datos['es_producto'] else 'Servicio Operativo'),
+                datos.get('garantia', ''), datos.get('zona_cobertura', ''),
+                datos.get('disponibilidad_atencion', ''), datos.get('modalidad_pago', ''),
+                datos.get('ficha_tecnica', ''), datos.get('whatsapp_msg', '')
+            )
+        )
     servicio_id = cursor.fetchone()['id']
     conn.commit()
     cursor.close()
@@ -181,26 +206,40 @@ def actualizar_servicio(servicio_id, datos):
     """Actualiza todos los datos y especificaciones de un servicio o producto existente."""
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute(
-        '''
-        UPDATE servicios
-        SET tipo_servicio_id = %s,
-            nombre = %s,
-            precio_base = %s,
-            imagen = %s,
-            descripcion = %s,
-            disponible = %s,
-            es_producto = %s,
-            destacado = %s,
-            tipo_producto = %s,
-            garantia = %s,
-            zona_cobertura = %s,
-            disponibilidad_atencion = %s,
-            modalidad_pago = %s,
-            ficha_tecnica = %s,
-            whatsapp_msg = %s
-        WHERE id = %s
-        ''',
+    try:
+        cursor.execute(
+            '''
+            UPDATE servicios
+            SET tipo_servicio_id = %s, nombre = %s, precio_base = %s, imagen = %s,
+                descripcion = %s, disponible = %s, es_producto = %s, destacado = %s,
+                tipo_producto = %s, garantia = %s, zona_cobertura = %s,
+                disponibilidad_atencion = %s, modalidad_pago = %s,
+                ficha_tecnica = %s, whatsapp_msg = %s, campos_extra = %s::jsonb
+            WHERE id = %s
+            ''',
+            (
+                datos['tipo_servicio_id'], datos['nombre'], datos['precio_base'], datos['imagen'],
+                datos['descripcion'], bool(datos['disponible']), int(bool(datos['es_producto'])),
+                bool(datos['destacado']),
+                datos.get('tipo_producto') or ('Equipo Físico' if datos['es_producto'] else 'Servicio Operativo'),
+                datos.get('garantia', ''), datos.get('zona_cobertura', ''),
+                datos.get('disponibilidad_atencion', ''), datos.get('modalidad_pago', ''),
+                datos.get('ficha_tecnica', ''), datos.get('whatsapp_msg', ''),
+                datos.get('campos_extra', '[]'), servicio_id
+            )
+        )
+    except Exception:
+        conn.rollback()
+        cursor.execute(
+            '''
+            UPDATE servicios
+            SET tipo_servicio_id = %s, nombre = %s, precio_base = %s, imagen = %s,
+                descripcion = %s, disponible = %s, es_producto = %s, destacado = %s,
+                tipo_producto = %s, garantia = %s, zona_cobertura = %s,
+                disponibilidad_atencion = %s, modalidad_pago = %s,
+                ficha_tecnica = %s, whatsapp_msg = %s
+            WHERE id = %s
+            ''',
         (
             datos['tipo_servicio_id'],
             datos['nombre'],
@@ -208,7 +247,7 @@ def actualizar_servicio(servicio_id, datos):
             datos['imagen'],
             datos['descripcion'],
             bool(datos['disponible']),
-            datos['es_producto'],
+            int(bool(datos['es_producto'])),
             bool(datos['destacado']),
             datos.get('tipo_producto') or ('Equipo Físico' if datos['es_producto'] else 'Servicio Operativo'),
             datos.get('garantia', ''),
@@ -219,7 +258,7 @@ def actualizar_servicio(servicio_id, datos):
             datos.get('whatsapp_msg', ''),
             servicio_id
         )
-    )
+        )
     conn.commit()
     cursor.close()
 

@@ -4,5 +4,6 @@ __pycache__/
 .env
 megaseg.db
 *.db-journal
+/backups/*.dump
 static/imagenes/catalogo/*
 !static/imagenes/catalogo/.gitkeep

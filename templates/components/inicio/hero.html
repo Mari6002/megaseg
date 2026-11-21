@@ -1,0 +1,47 @@
+<!-- ==============================================================================
+     SECCIÓN 1: HERO BANNER DE ALTO IMPACTO (PORTADA PRINCIPAL)
+     ============================================================================== -->
+<section id="inicio" class="hero-megaseg text-white position-relative d-flex align-items-center">
+    <div class="hero-overlay"></div>
+    <div class="container position-relative py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6 col-md-8">
+                <span class="hero-company-badge badge bg-danger-subtle text-danger-emphasis px-3 py-2 text-uppercase fw-bold mb-3 border border-danger rounded-pill">
+                    <span class="status-pulse-dot me-1"></span> Empresa Legalmente Constituida · Lago Agrio, Ecuador
+                </span>
+                <h1 class="display-4 fw-extrabold mb-3 text-white">
+                    Protección y Vigilancia Confiable para su <span class="text-warning">Tranquilidad</span>
+                </h1>
+                <p class="lead text-light-muted mb-4 pe-lg-4 hero-description">
+                    Más de 10 años de liderazgo en seguridad física, electrónica, videovigilancia CCTV en tiempo real, alarmas perimetrales y rastreo satelital GPS en Lago Agrio y toda la provincia de Sucumbíos.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="https://wa.me/{{ empresa.whatsapp }}?text=Hola%20Grupo%20Megaseg,%20quisiera%20solicitar%20asesor%C3%ADa%20y%20cotizaci%C3%B3n"
+                       target="_blank" rel="noopener noreferrer" class="btn btn-verde btn-lg shadow-sm">
+                        <i class="bi bi-whatsapp me-2"></i>Cotiza por WhatsApp
+                    </a>
+                    <a href="{{ url_for('servicios') }}" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-grid-3x3-gap-fill me-2"></i>Ver Catálogo Completo
+                    </a>
+                    {% if current_user.is_authenticated and current_user.can_manage_catalog() %}
+                    <a href="{{ url_for('nuevo_servicio') }}" class="btn btn-warning btn-lg text-dark fw-bold">
+                        <i class="bi bi-plus-circle-fill me-2"></i>Publicar Servicio / Producto
+                    </a>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex gap-4 mt-4 pt-2 flex-wrap">
+                    <div class="d-flex align-items-center gap-2 small text-light">
+                        <i class="bi bi-patch-check-fill text-warning fs-5"></i> Permisos al día
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small text-light">
+                        <i class="bi bi-shield-lock-fill text-warning fs-5"></i> Monitoreo 24/7/365
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small text-light">
+                        <i class="bi bi-geo-alt-fill text-warning fs-5"></i> Cobertura en Sucumbíos
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

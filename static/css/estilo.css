@@ -1,6 +1,5 @@
 /* ==============================================================================
    PROYECTO: MEGASEG SEGURIDAD INTEGRAL - HOJA DE ESTILOS PRINCIPAL
-   Arquitectura Inspirada en NexoDigital (Bootstrap 5 + Custom Design Tokens)
    Colores de Alto Contraste y Legibilidad Óptima (WCAG AAA)
    ============================================================================== */
 
@@ -168,10 +167,10 @@ small, .small {
     inset: 0;
     background: linear-gradient(
         90deg,
-        rgba(4, 6, 10, 0.98) 0%,
-        rgba(4, 6, 10, 0.92) 45%,
-        rgba(11, 15, 25, 0.75) 75%,
-        rgba(4, 6, 10, 0.45) 100%
+        rgba(4, 6, 10, 0.96) 0%,
+        rgba(4, 6, 10, 0.86) 38%,
+        rgba(11, 15, 25, 0.48) 68%,
+        rgba(4, 6, 10, 0.16) 100%
     );
     z-index: 1;
 }
@@ -180,7 +179,7 @@ small, .small {
     z-index: 2;
 }
 
-/* Botones con Estilo NexoDigital */
+/* Botones oficiales de Megaseg */
 .btn-verde {
     background: linear-gradient(135deg, var(--verde-wsp), #15803D);
     color: #FFFFFF !important;
@@ -394,6 +393,79 @@ small, .small {
     display: flex;
     align-items: center;
     gap: 12px;
+}
+
+/* Ajustes visuales de los componentes de la portada */
+.resena-comentario {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+.hero-description {
+    font-size: 1.15rem;
+    line-height: 1.7;
+}
+
+.about-image {
+    min-height: 380px;
+}
+
+.icon-circle-md {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+}
+
+.icon-circle-lg {
+    width: 50px;
+    height: 50px;
+    flex: 0 0 50px;
+}
+
+.technical-badge {
+    font-size: 0.72rem;
+}
+
+.benefit-description {
+    max-width: 650px;
+}
+
+.quote-card {
+    max-width: 920px;
+}
+
+.contact-map {
+    min-height: 320px;
+}
+
+.contact-map-frame {
+    width: 100%;
+    height: 100%;
+    min-height: 320px;
+    border: 0;
+}
+
+.brand-subtitle {
+    font-size: 0.68rem;
+    letter-spacing: 1px;
+}
+
+.brand-title {
+    font-size: 1.15rem;
+    line-height: 1;
+}
+
+.footer-brand-subtitle {
+    letter-spacing: 1px;
+}
+
+.footer-social-link {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Botón Flotante WhatsApp */
@@ -639,21 +711,120 @@ small, .small {
 }
 
 /* Responsive Media Queries */
-@media (max-width: 768px) {
+@media (max-width: 575.98px) {
+    .topbar-emergency {
+        padding-top: 0.35rem !important;
+        padding-bottom: 0.35rem !important;
+    }
+
+    .topbar-container {
+        flex-direction: column;
+        align-items: stretch !important;
+        flex-wrap: nowrap !important;
+        gap: 0.25rem !important;
+    }
+
+    .topbar-status {
+        width: 100%;
+        min-width: 0;
+        font-size: 0.72rem;
+        line-height: 1.25;
+    }
+
+    .topbar-status span:last-child {
+        white-space: normal;
+    }
+
+    .topbar-actions {
+        width: 100%;
+        justify-content: space-between !important;
+        gap: 0.35rem !important;
+    }
+
+    .topbar-phone {
+        font-size: 0.72rem;
+        white-space: nowrap;
+    }
+
+    .topbar-actions .btn {
+        min-height: 30px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.72rem;
+        padding: 0.2rem 0.45rem !important;
+        white-space: nowrap;
+    }
+
+    .topbar-actions .badge {
+        max-width: 42%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .topbar-actions form {
+        flex: 0 0 auto;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1399.98px) {
+    .hero-megaseg {
+        background-position: 30% center;
+    }
+
+    .hero-overlay {
+        background: linear-gradient(
+            90deg,
+            rgba(4, 6, 10, 0.97) 0%,
+            rgba(4, 6, 10, 0.88) 42%,
+            rgba(11, 15, 25, 0.52) 72%,
+            rgba(4, 6, 10, 0.2) 100%
+        );
+    }
+}
+
+@media (max-width: 767.98px) {
     .hero-megaseg {
         min-height: 75vh;
-        background-position: center;
+        background-color: #04060a;
+        background-image: none;
+    }
+
+    .hero-company-badge {
+        display: inline-block;
+        max-width: 100%;
+        white-space: normal;
+        text-align: center;
+        line-height: 1.4;
+    }
+
+    .hero-megaseg::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: 240px;
+        background-image: url('../imagenes/guardia-megaseg.jpg');
+        background-size: cover;
+        background-position: center center;
     }
 
     .hero-overlay {
         background: linear-gradient(
             180deg,
-            rgba(4, 6, 10, 0.96) 0%,
-            rgba(4, 6, 10, 0.90) 70%,
-            rgba(4, 6, 10, 0.98) 100%
+            rgba(4, 6, 10, 0.15) 0%,
+            rgba(4, 6, 10, 0.35) 170px,
+            rgba(4, 6, 10, 0.98) 240px,
+            rgba(4, 6, 10, 0.99) 100%
         );
     }
 
+    .hero-megaseg .container {
+        padding-top: 15rem !important;
+    }
+}
+
+@media (max-width: 768px) {
     .border-end-md {
         border-right: none !important;
     }
@@ -665,7 +836,7 @@ small, .small {
 }
 
 /* ==============================================================================
-   ESTILOS DE LA PLANTILLA DINÁMICA DE TARJETAS (MEGASEG + NEXODIGITAL)
+   ESTILOS DE LA PLANTILLA DINÁMICA DE TARJETAS MEGASEG
    ============================================================================== */
 .btn-toggle-detalle {
     background: transparent;

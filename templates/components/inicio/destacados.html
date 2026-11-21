@@ -1,0 +1,102 @@
+<!-- ==============================================================================
+     SECCIÓN 5: SERVICIOS Y PRODUCTOS DESTACADOS
+     ============================================================================== -->
+<section id="servicios-destacados" class="py-5 bg-navy-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+            <div>
+                <span class="badge bg-danger px-3 py-1 text-uppercase fw-semibold mb-2">Portafolio Profesional</span>
+                <h2 class="display-6 fw-bold text-white mb-0">Servicios & Equipos Destacados</h2>
+                <p class="text-muted mb-0">Soluciones activas listas para instalación inmediata y cotización en línea.</p>
+            </div>
+            <a href="{{ url_for('servicios') }}" class="btn btn-outline-warning rounded-pill">
+                Ver Catálogo Completo <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            {% for s in servicios_destacados %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 service-card shadow border-0 rounded-4 bg-dark text-white d-flex flex-column overflow-hidden">
+                    <div class="card-img-wrapper position-relative">
+                        <img src="{{ s.imagen or url_for('static', filename='imagenes/guardia-megaseg.jpg') }}" 
+                             alt="{{ s.nombre }}" 
+                             class="w-100 h-100 object-fit-cover"
+                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='imagenes/guardia-megaseg.jpg') }}';">
+                        <div class="price-tag">
+                            {% if s.precio_base and s.precio_base > 0 %}
+                                ${{ "%.2f"|format(s.precio_base) }} <span>USD</span>
+                            {% else %}
+                                <span>A Cotizar</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-secondary text-white">{{ s.tipo_nombre }}</span>
+                            {% if s.disponible %}
+                                <span class="badge bg-success-subtle text-success border border-success"><i class="bi bi-check-circle-fill me-1"></i>Disponible</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Próximamente</span>
+                            {% endif %}
+                        </div>
+                        <h3 class="h5 fw-bold text-white my-2">{{ s.nombre }}</h3>
+                        <p class="text-muted small flex-grow-1 mb-2">{{ s.descripcion }}</p>
+                        
+                        <!-- Botón Ver Más / Ver Menos Detalles -->
+                        <div class="my-2">
+                            <button type="button" 
+                                    class="btn btn-toggle-detalle w-100" 
+                                    data-bs-toggle="collapse" 
+                                    data-bs-target="#detalle-home-{{ s.id }}" 
+                                    aria-expanded="false" 
+                                    aria-controls="detalle-home-{{ s.id }}"
+                                    data-texto-original="Ver más detalles">
+                                <i class="bi bi-info-circle me-1"></i>
+                                <span class="btn-text">Ver más detalles</span>
+                                <i class="bi bi-chevron-down ms-1 toggle-icon"></i>
+                            </button>
+                        </div>
+
+                        <!-- Ficha Técnica Desplegable -->
+                        <div class="collapse" id="detalle-home-{{ s.id }}">
+                            <div class="detalle-expandible-box text-start mb-3">
+                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-secondary">
+                                    <span class="badge bg-warning text-dark fw-bold technical-badge">
+                                        <i class="bi bi-shield-check me-1"></i>Ficha Técnica
+                                    </span>
+                                    <span class="small text-light-muted fw-semibold">
+                                        {{ 'Producto Físico' if s.es_producto else 'Servicio Activo' }}
+                                    </span>
+                                </div>
+                                <div class="detalle-item">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <div>
+                                        <strong class="text-white d-block">Garantía Técnica:</strong>
+                                        <span class="text-light-muted">Respaldo oficial con técnicos acreditados en Lago Agrio.</span>
+                                    </div>
+                                </div>
+                                <div class="detalle-item mb-0">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                    <div>
+                                        <strong class="text-white d-block">Cobertura Sucumbíos:</strong>
+                                        <span class="text-light-muted">Instalación y soporte en Lago Agrio, Shushufindi y cantones aledaños.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-3 border-top border-secondary mt-auto">
+                            <a href="https://wa.me/{{ empresa.whatsapp }}?text=Hola%20Grupo%20Megaseg,%20quisiera%20cotizar:%20{{ s.nombre|urlencode }}"
+                               target="_blank" rel="noopener noreferrer" 
+                               class="btn btn-verde btn-sm rounded-pill w-100">
+                                <i class="bi bi-whatsapp me-1"></i>Cotizar por WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>

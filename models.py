@@ -72,15 +72,27 @@ class User(UserMixin):
         from conexion.conexion import get_db_connection
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM usuarios WHERE id = %s", (user_id,))
-        fila = cursor.fetchone()
+        try:
+            cursor.execute(
+                '''
+                SELECT u.*, r.nombre AS rol
+                FROM usuarios u
+                LEFT JOIN roles r ON r.id = u.rol_id
+                WHERE u.id = %s
+                ''',
+                (user_id,)
+            )
+            fila = cursor.fetchone()
+        except Exception:
+            cursor.execute("SELECT * FROM usuarios WHERE id = %s", (user_id,))
+            fila = cursor.fetchone()
         cursor.close()
         if fila:
             return User(
                 id=fila['id'],
                 usuario=fila['usuario'],
                 password=fila['password'],
-                rol=fila.get('rol', 'Cliente'),
+                rol=fila.get('rol') or 'Cliente',
                 nombre=fila.get('nombre', fila['usuario']),
                 email=fila.get('email', ''),
                 telefono=fila.get('telefono', ''),
@@ -95,8 +107,23 @@ class User(UserMixin):
         conn = get_db_connection()
         cursor = conn.cursor()
         valor = (username_o_email or "").strip().lower()
-        cursor.execute("SELECT * FROM usuarios WHERE LOWER(usuario) = %s OR LOWER(email) = %s", (valor, valor))
-        fila = cursor.fetchone()
+        try:
+            cursor.execute(
+                '''
+                SELECT u.*, r.nombre AS rol
+                FROM usuarios u
+                LEFT JOIN roles r ON r.id = u.rol_id
+                WHERE LOWER(u.usuario) = %s OR LOWER(u.email) = %s
+                ''',
+                (valor, valor)
+            )
+            fila = cursor.fetchone()
+        except Exception:
+            cursor.execute(
+                "SELECT * FROM usuarios WHERE LOWER(usuario) = %s OR LOWER(email) = %s",
+                (valor, valor)
+            )
+            fila = cursor.fetchone()
         cursor.close()
         if fila:
             return User(

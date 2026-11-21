@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mari6002.github.io/megaseg/sitemap.xml

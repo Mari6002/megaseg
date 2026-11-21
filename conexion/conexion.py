@@ -81,7 +81,8 @@ def get_db_connection():
     """
     Obtiene una conexión activa a la base de datos.
     - Usa PostgreSQL cuando DATABASE_URL está configurada o USE_POSTGRES=true.
-    - Usa SQLite cuando se ejecuta en desarrollo local sin PostgreSQL activo.
+    - Usa SQLite únicamente cuando USE_SQLITE=true.
+    - Falla explícitamente si no se configuró un motor de base de datos.
     """
     if has_app_context():
         conexion_actual = getattr(g, 'megaseg_db_connection', None)
@@ -92,8 +93,13 @@ def get_db_connection():
     use_postgres = (os.getenv('USE_POSTGRES') or '').strip().lower() in ('1', 'true', 'yes')
     use_sqlite = (os.getenv('USE_SQLITE') or '').strip().lower() in ('1', 'true', 'yes')
 
-    # Opción 1: Conexión PostgreSQL (si se especificó DATABASE_URL o USE_POSTGRES=true)
-    if (db_url or use_postgres) and not use_sqlite:
+    if use_sqlite and (db_url or use_postgres):
+        raise RuntimeError(
+            'Configuración de base de datos ambigua: elige PostgreSQL o SQLite, no ambos.'
+        )
+
+    # Opción 1: Conexión PostgreSQL (DATABASE_URL o USE_POSTGRES=true).
+    if db_url or use_postgres:
         try:
             import psycopg2
             from psycopg2.extras import RealDictCursor
@@ -136,7 +142,13 @@ def get_db_connection():
             g.megaseg_db_connection = conexion
         return conexion
 
-    # Opción 2: Conexión SQLite local (megaseg.db)
+    if not use_sqlite:
+        raise RuntimeError(
+            'No hay una base de datos configurada. Define USE_POSTGRES=true para PostgreSQL '
+            'o USE_SQLITE=true para SQLite local.'
+        )
+
+    # Opción 2: SQLite se permite únicamente con USE_SQLITE=true explícito.
     conn = sqlite3.connect(str(DB_PATH), timeout=10)
     conn.execute('PRAGMA foreign_keys = ON')
     conn_wrapper = SQLiteConnectionWrapper(conn)

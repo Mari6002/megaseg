@@ -1,0 +1,96 @@
+<section id="resenas" class="py-5 bg-navy-light">
+    <div class="container">
+        <div class="text-center mb-4">
+            <span class="badge bg-danger px-3 py-1 text-uppercase fw-semibold mb-2">Experiencias verificadas</span>
+            <h2 class="h2 fw-bold text-white mb-2">Reseñas de nuestros clientes</h2>
+            <p class="text-muted mb-0">
+                Opiniones que han sido revisadas y aprobadas antes de publicarse.
+            </p>
+            {% if resumen_resenas.total %}
+            <div class="mt-3 text-warning">
+                {% for estrella in range(1, 6) %}
+                    {% if estrella <= resumen_resenas.promedio|round(0, 'floor')|int %}
+                        <i class="bi bi-star-fill"></i>
+                    {% else %}
+                        <i class="bi bi-star"></i>
+                    {% endif %}
+                {% endfor %}
+                <strong class="text-white ms-2">{{ resumen_resenas.promedio }}</strong>
+                <span class="text-muted">/ 5 · {{ resumen_resenas.total }} reseñas</span>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if resenas %}
+        <div class="row g-4 mb-4">
+            {% for resena in resenas %}
+            <div class="col-md-6 col-lg-4">
+                <article class="card h-100 border border-secondary bg-dark text-white rounded-4 p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div>
+                            <strong class="text-warning d-block">{{ resena.nombre }}</strong>
+                            {% if resena.servicio_nombre %}
+                            <small class="text-muted">Sobre: {{ resena.servicio_nombre }}</small>
+                            {% endif %}
+                        </div>
+                        <div class="text-warning" aria-label="{{ resena.calificacion }} de 5 estrellas">
+                            {% for estrella in range(1, 6) %}
+                                <i class="bi {{ 'bi-star-fill' if estrella <= resena.calificacion else 'bi-star' }}"></i>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <p class="text-light-muted mb-0 resena-comentario">{{ resena.comentario }}</p>
+                </article>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-dark border border-secondary text-center mb-4">
+            Aún no hay reseñas públicas. Puedes dejar la primera opinión.
+        </div>
+        {% endif %}
+
+        <div class="card border border-secondary shadow rounded-4 bg-dark text-white p-4 mx-auto quote-card">
+            <h3 class="h5 fw-bold mb-3 text-center">Comparte tu experiencia</h3>
+            <form method="POST" action="{{ url_for('nueva_resena') }}" class="row g-3">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="col-md-3">
+                    <label for="nombreResena" class="form-label small fw-semibold">Nombre</label>
+                    <input id="nombreResena" name="nombre" type="text" maxlength="100" minlength="2" required
+                           class="form-control bg-navy-light text-white border-secondary" placeholder="Tu nombre">
+                </div>
+                <div class="col-md-3">
+                    <label for="calificacionResena" class="form-label small fw-semibold">Calificación</label>
+                    <select id="calificacionResena" name="calificacion" required class="form-select bg-navy-light text-white border-secondary">
+                        <option value="">Selecciona</option>
+                        <option value="5">★★★★★ Excelente</option>
+                        <option value="4">★★★★☆ Muy buena</option>
+                        <option value="3">★★★☆☆ Buena</option>
+                        <option value="2">★★☆☆☆ Regular</option>
+                        <option value="1">★☆☆☆☆ Mala</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="servicioResena" class="form-label small fw-semibold">Relacionado con</label>
+                    <select id="servicioResena" name="servicio_id" class="form-select bg-navy-light text-white border-secondary">
+                        <option value="">Megaseg en general</option>
+                        {% for servicio in servicios_resenas %}
+                        <option value="{{ servicio.id }}">{{ servicio.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="comentarioResena" class="form-label small fw-semibold">Comentario</label>
+                    <textarea id="comentarioResena" name="comentario" rows="3" minlength="10" maxlength="1000" required
+                              class="form-control bg-navy-light text-white border-secondary"
+                              placeholder="Cuéntanos tu experiencia"></textarea>
+                </div>
+                <div class="col-12 text-center">
+                    <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold">
+                        <i class="bi bi-send-fill me-1"></i>Enviar reseña 
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>

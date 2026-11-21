@@ -35,6 +35,30 @@
    que el servicio esté en ejecución y que `DB_HOST`, `DB_PORT`, `DB_NAME`,
    `DB_USER` y `DB_PASSWORD` sean correctos.
 
+Las contraseñas nuevas se guardan como hashes scrypt irreversibles, no como
+cifrado reversible ni texto plano. Para revisar y migrar cuentas antiguas,
+ejecuta primero el modo de revisión y luego `--apply` si hay contraseñas
+heredadas sin hash:
+
+```powershell
+python scripts/migrar_hashes_password.py
+python scripts/migrar_hashes_password.py --apply
+```
+
+La migración conserva la contraseña actual de cada cuenta y actualiza sus hashes
+en una transacción.
+
+Si tu base ya tenía `usuarios.rol_id` en vez de `usuarios.rol`, revisa la
+compatibilidad y luego aplica la conversión respaldada:
+
+```powershell
+python scripts/migrar_rol_postgres.py
+python scripts/migrar_rol_postgres.py --apply
+```
+
+El segundo comando guarda un respaldo completo en `backups/` antes de copiar
+los nombres de roles y retirar la columna antigua.
+
 ## 2. Cuentas y admisión
 
 En `/registro`, cualquier persona puede solicitar una cuenta:

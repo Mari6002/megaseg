@@ -10,9 +10,9 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from dotenv import load_dotenv, set_key
-from werkzeug.security import generate_password_hash
 
 from conexion.conexion import get_db_connection
+from security.passwords import hash_password
 
 
 ENV_PATH = PROJECT_ROOT / '.env'
@@ -36,13 +36,13 @@ def main():
     try:
         cursor.execute(
             'UPDATE usuarios SET password = %s WHERE LOWER(usuario) = %s',
-            (generate_password_hash(nueva), usuario.lower())
+            (hash_password(nueva), usuario.lower())
         )
         if cursor.rowcount != 1:
             conn.rollback()
             raise SystemExit('No se encontró exactamente una cuenta con ese usuario.')
         conn.commit()
-        set_key(str(ENV_PATH), 'ADMIN_PASSWORD', nueva, quote_mode='always')
+        set_key(str(ENV_PATH), 'ADMIN_PASSWORD', '', quote_mode='always')
     except Exception:
         conn.rollback()
         raise
@@ -50,7 +50,7 @@ def main():
         cursor.close()
         conn.close()
 
-    print('Contraseña actualizada y guardada en .env.')
+    print('Contraseña del Administrador actualizada con un hash seguro.')
 
 
 if __name__ == '__main__':

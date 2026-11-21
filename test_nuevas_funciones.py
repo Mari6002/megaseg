@@ -27,15 +27,15 @@ app.app.config['WTF_CSRF_ENABLED'] = False
 client = app.app.test_client()
 
 
-def register(username, role, email):
+def register(username, role, email, password='TestPassword123!'):
     return client.post('/registro', data={
         'usuario': username,
         'nombre': f'Test {username}',
         'email': email,
         'telefono': '0981112233',
         'rol': role,
-        'password': 'TestPassword123!',
-        'confirm_password': 'TestPassword123!'
+        'password': password,
+        'confirm_password': password
     }, follow_redirects=True)
 
 
@@ -63,7 +63,13 @@ try:
     print('Rutas de facturación retiradas.')
 
     client.post('/logout', follow_redirects=True)
-    response = register('cliente_test', 'Cliente', 'cliente@test.com')
+    client_password = 'scrypt:plaintext-looking-password'
+    response = register(
+        'cliente_test',
+        'Cliente',
+        'cliente@test.com',
+        password=client_password
+    )
     assert response.status_code == 200
     assert b'Bienvenido a Megaseg' in response.data
     connection = database.get_db_connection()
@@ -71,6 +77,16 @@ try:
     cursor.execute("SELECT id, activo FROM usuarios WHERE usuario = %s", ('cliente_test',))
     client_user = cursor.fetchone()
     assert client_user and bool(client_user['activo'])
+    cursor.execute("SELECT password FROM usuarios WHERE usuario = %s", ('cliente_test',))
+    stored_password = cursor.fetchone()['password']
+    assert stored_password != client_password, 'A plaintext password was stored in the database'
+    assert stored_password.startswith('scrypt:'), 'New accounts must use the shared scrypt password hash'
+    from models import User
+    with app.app.app_context():
+        created_user = User.get_by_usuario('cliente_test')
+        app.close_db_connection(None)
+    assert created_user and created_user.verificar_password(client_password)
+    assert created_user and not created_user.verificar_password('wrong-password')
     client.post('/logout', follow_redirects=True)
     print('Cliente activo inmediatamente.')
 

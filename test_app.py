@@ -51,6 +51,9 @@ client = app.app.test_client()
 res = client.get('/')
 assert res.status_code == 200, f'Home failed: {res.status_code}'
 assert b'MEGASEG' in res.data, 'Megaseg not in home'
+assert b'id="formCotizadorWeb" data-whatsapp="593982900705"' in res.data, 'Quote form is missing company contact data'
+assert b'id="contacto"' in res.data, 'Contact section is missing from home'
+assert res.data.count(b'bootstrap-icons.min.css') == 1, 'Shared stylesheets should only be included once'
 print('1. Home page OK')
 
 # 2. Test Catalog

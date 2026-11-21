@@ -1,0 +1,85 @@
+<!-- ==============================================================================
+     SECCIÓN 3: ¿QUIÉNES SOMOS? 
+     ============================================================================== -->
+<section id="quienes-somos" class="py-5 bg-navy-light text-white">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-5 col-md-6">
+                <div class="position-relative">
+                    <img src="{{ url_for('static', filename='imagenes/nosotros.jpg') }}" 
+                         alt="Instalaciones y equipo de Grupo Megaseg" 
+                         class="img-fluid rounded-4 shadow-lg w-100 object-fit-cover border border-secondary about-image">
+                    <div class="experience-card-floating shadow">
+                        <i class="bi bi-shield-check text-warning fs-1"></i>
+                        <div>
+                            <div class="fw-bold text-white h5 mb-0">+10 Años</div>
+                            <small class="text-muted">Protegiendo la Amazonía</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <article class="col-lg-7 col-md-6">
+                <span class="badge bg-danger text-white mb-2 px-3 py-1 text-uppercase fw-semibold">Nuestra Compañía</span>
+                <h2 class="display-6 fw-bold text-white mb-3">¿Quiénes Somos?</h2>
+                <p class="lead text-light">
+                    En <strong>{{ empresa.nombre }}</strong>, nos dedicamos a ofrecer soluciones integrales de seguridad para hogares, negocios y empresas en Lago Agrio y toda la provincia de Sucumbíos.
+                </p>
+                <p class="text-muted">
+                    Nuestros servicios incluyen la venta, instalación y monitoreo de sistemas de seguridad electrónica, así como servicios de guardianía privada física acreditada y automatización domótica para garantizar la protección absoluta de su entorno.
+                </p>
+                
+                <div class="row g-3 mt-3">
+                    <div class="col-sm-6">
+                        <div class="p-3 bg-dark rounded-3 border-start border-4 border-danger">
+                            <small class="text-muted d-block fw-semibold">Sede Principal</small>
+                            <span class="fw-bold text-white"><i class="bi bi-geo-alt-fill text-danger me-1"></i>Nueva Loja (Lago Agrio)</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 bg-dark rounded-3 border-start border-4 border-warning">
+                            <small class="text-muted d-block fw-semibold">Ámbito Operativo</small>
+                            <span class="fw-bold text-white"><i class="bi bi-shield-fill-check text-warning me-1"></i>Física, Electrónica y Satelital</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón Desplegable Ver Más Información Institucional -->
+                <div class="mt-4">
+                    <button type="button" 
+                            class="btn btn-toggle-detalle" 
+                            data-bs-toggle="collapse" 
+                            data-bs-target="#detalle-nosotros" 
+                            aria-expanded="false" 
+                            aria-controls="detalle-nosotros"
+                            data-texto-original="Ver más trayectoria y acreditaciones">
+                        <i class="bi bi-patch-check-fill me-1"></i>
+                        <span class="btn-text">Ver más trayectoria y acreditaciones</span>
+                        <i class="bi bi-chevron-down ms-1 toggle-icon"></i>
+                    </button>
+                    
+                    <div class="collapse mt-3" id="detalle-nosotros">
+                        <div class="p-3 bg-dark rounded-4 border border-secondary text-light-muted">
+                            <h4 class="h6 fw-bold text-warning mb-2"><i class="bi bi-shield-lock-fill me-1"></i>Acreditación & Respaldo Oficial en Ecuador:</h4>
+                            <p class="small mb-2 text-body-readable">
+                                <strong>Grupo de Seguridad Megaseg Cía. Ltda.</strong> opera con autorización legal y permisos vigentes ante los organismos reguladores de seguridad privada del Ecuador. Nuestro personal es rigurosamente evaluado con pruebas psicotécnicas, toxicológicas y antecedentes penales certificados.
+                            </p>
+                            <div class="row g-2 mt-2">
+                                <div class="col-sm-6">
+                                    <div class="p-2 bg-navy-light rounded-3 border border-secondary small">
+                                        <i class="bi bi-check2-circle text-success me-1"></i><strong class="text-white">Armamento Acreditado:</strong> Dotación homologada bajo estricto control de ley.
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="p-2 bg-navy-light rounded-3 border border-secondary small">
+                                        <i class="bi bi-check2-circle text-success me-1"></i><strong class="text-white">Patrullaje Móvil:</strong> Rondas preventivas y auxilio táctico inmediato en Lago Agrio.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>

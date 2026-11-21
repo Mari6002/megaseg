@@ -1,0 +1,65 @@
+<!-- ==============================================================================
+     SECCIÓN 8: CONTACTO & UBICACIÓN EN LAGO AGRIO
+     ============================================================================== -->
+<section id="contacto" class="py-5 bg-dark text-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge bg-danger px-3 py-1 text-uppercase fw-semibold mb-2">Canales Oficiales</span>
+            <h2 class="display-6 fw-bold">Estamos Listos para Atenderte</h2>
+            <p class="text-muted">Visítanos en nuestra oficina en Lago Agrio o contáctanos por WhatsApp y llamadas.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <div class="p-4 bg-navy-light rounded-4 border border-secondary mb-3">
+                    <h3 class="h5 fw-bold text-warning mb-3">Información Central</h3>
+                    <ul class="list-unstyled text-muted small d-flex flex-column gap-3 mb-0">
+                        <li class="d-flex align-items-start gap-2">
+                            <i class="bi bi-geo-alt-fill text-danger fs-5 mt-1"></i>
+                            <div>
+                                <strong class="text-white d-block">Dirección Oficial:</strong>
+                                {{ empresa.ubicacion }}
+                            </div>
+                        </li>
+                        <li class="d-flex align-items-start gap-2">
+                            <i class="bi bi-telephone-fill text-success fs-5 mt-1"></i>
+                            <div>
+                                <strong class="text-white d-block">Teléfonos de Emergencia:</strong>
+                                {{ empresa.telefono }} / {{ empresa.telefono_fijo }}
+                            </div>
+                        </li>
+                        <li class="d-flex align-items-start gap-2">
+                            <i class="bi bi-clock-fill text-warning fs-5 mt-1"></i>
+                            <div>
+                                <strong class="text-white d-block">Horarios de Atención:</strong>
+                                Central 24 Horas / 365 Días al año.<br>Oficina: Lunes a Viernes  de 8:00 AM a 6:00 PM.<br>
+                                Sábado de 8:00 AM a 12:00 PM.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="p-3 bg-navy-light rounded-4 border border-secondary d-flex align-items-center justify-content-between">
+                    <div>
+                        <strong class="text-white d-block">Síguenos en Facebook:</strong>
+                        <small class="text-muted">{{ empresa.facebook }}</small>
+                    </div>
+                    <a href="{{ empresa.facebook }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light btn-sm rounded-pill">
+                        <i class="bi bi-facebook me-1"></i>Visitar
+                    </a>
+                </div>
+            </div>
+
+            <!-- Mapa de Lago Agrio -->
+            <div class="col-lg-7">
+                <div class="rounded-4 overflow-hidden border border-secondary shadow h-100 contact-map">
+                    <iframe 
+                        title="Mapa de Grupo Megaseg en Lago Agrio"
+                        src="https://www.google.com/maps/embed?pb=!1m17!1m11!1m3!1d552.4309998132126!2d-76.90223623903357!3d0.09069528448172166!2m2!1f0!2f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e28239927c7a8ff%3A0xd6195f4005f039b0!2sGRUPO%20DE%20SEGURIDAD%20MEGASEG%20-%20C%C3%A1maras%20y%20Alarmas%20de%20Seguridad%20en%20Lago%20Agrio%20Ecuador!5e1!3m2!1ses-419!2sec!4v1794938178346!5m2!1ses-419!2sec" 
+                        class="contact-map-frame" allowfullscreen loading="lazy">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

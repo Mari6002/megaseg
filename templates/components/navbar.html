@@ -1,20 +1,19 @@
 <!-- ==============================================================================
      COMPONENTE MODULAR: BARRA SUPERIOR Y MENÚ DE NAVEGACIÓN
-     Grupo de Seguridad Megaseg Cía. Ltda. — Estilo NexoDigital
      ============================================================================== -->
 
 <!-- 1. Topbar Superior de Emergencias y Estado en Vivo -->
 <div class="topbar-emergency py-1 bg-dark-red text-white">
-    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2 small">
-        <div class="d-flex align-items-center gap-2">
+    <div class="topbar-container container d-flex justify-content-between align-items-center flex-wrap gap-2 small">
+        <div class="topbar-status d-flex align-items-center gap-2">
             <span class="status-pulse-dot"></span>
             <span><strong>Central 24/7:</strong> Monitoreo activo en Lago Agrio y Sucumbíos</span>
         </div>
-        <div class="d-flex align-items-center gap-3">
-            <a href="tel:+593982900705" class="text-white text-decoration-none d-flex align-items-center gap-1">
-                <i class="bi bi-telephone-fill text-warning"></i> +593 98 290 0705
+        <div class="topbar-actions d-flex align-items-center gap-3">
+            <a href="tel:{{ empresa.telefono|replace(' ', '') }}" class="topbar-phone text-white text-decoration-none d-flex align-items-center gap-1">
+                <i class="bi bi-telephone-fill text-warning"></i> {{ empresa.telefono }}
             </a>
-            <a href="https://www.facebook.com/megaseg.ec/" target="_blank" rel="noopener noreferrer" class="text-white text-decoration-none d-none d-md-flex align-items-center gap-1">
+            <a href="{{ empresa.facebook }}" target="_blank" rel="noopener noreferrer" class="text-white text-decoration-none d-none d-md-flex align-items-center gap-1">
                 <i class="bi bi-facebook text-info"></i> fb.com/megaseg.ec
             </a>
             {% if current_user.is_authenticated %}
@@ -47,8 +46,8 @@
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2 py-1" href="{{ url_for('inicio') }}">
             <img src="{{ url_for('static', filename='imagenes/logo-megaseg.png') }}" alt="Logo Megaseg" height="46" class="rounded">
             <div class="d-flex flex-column text-start">
-                <span class="brand-subtitle text-warning fw-bold text-uppercase" style="font-size: 0.68rem; letter-spacing: 1px;">Grupo de Seguridad</span>
-                <span class="brand-title text-white fw-extrabold" style="font-size: 1.15rem; line-height: 1;">MEGASEG <span class="text-danger">LTDA.</span></span>
+                <span class="brand-subtitle text-warning fw-bold text-uppercase">Grupo de Seguridad</span>
+                <span class="brand-title text-white fw-extrabold">MEGASEG <span class="text-danger">LTDA.</span></span>
             </div>
         </a>
 
@@ -100,6 +99,11 @@
                             <i class="bi bi-people me-1 text-success"></i>Roles
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-2 {{ 'active' if request.endpoint in ['admin_resenas','aprobar_resena','ocultar_resena','eliminar_resena'] else '' }}" href="{{ url_for('admin_resenas') }}">
+                            <i class="bi bi-star-fill me-1 text-warning"></i>Reseñas
+                        </a>
+                    </li>
                     {% endif %}
                 {% else %}
                     <!-- Enlaces Informativos para Clientes Públicos -->
@@ -125,7 +129,7 @@
                     </li>
                     <!-- Botón Destacado WhatsApp para Clientes -->
                     <li class="nav-item ms-xl-2 mt-2 mt-xl-0">
-                        <a href="https://wa.me/593982900705?text=Hola%20Grupo%20Megaseg,%20quisiera%20solicitar%20asesor%C3%ADa%20personalizada" 
+                        <a href="https://wa.me/{{ empresa.whatsapp }}?text=Hola%20Grupo%20Megaseg,%20quisiera%20solicitar%20asesor%C3%ADa%20personalizada"
                            target="_blank" rel="noopener noreferrer" 
                            class="btn btn-verde btn-sm rounded-pill px-3 shadow-sm d-flex align-items-center justify-content-center gap-1">
                             <i class="bi bi-whatsapp"></i> <span>WhatsApp Asesor</span>

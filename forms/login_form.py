@@ -29,3 +29,35 @@ class LoginForm(FlaskForm):
     recordarme = BooleanField('Mantener sesión iniciada')
 
     submit = SubmitField('Ingresar al Sistema')
+
+
+class RecuperarPasswordForm(FlaskForm):
+    """Solicita el envío de un enlace temporal de recuperación."""
+
+    usuario_o_email = StringField(
+        'Usuario o correo electrónico',
+        validators=[
+            DataRequired(message='Ingresa tu usuario o correo.'),
+            Length(min=3, max=120, message='Ingresa un dato válido.')
+        ]
+    )
+    submit = SubmitField('Enviar enlace de recuperación')
+
+
+class NuevaPasswordForm(FlaskForm):
+    """Define una contraseña nueva desde un enlace válido."""
+
+    password = PasswordField(
+        'Nueva contraseña',
+        validators=[
+            DataRequired(message='Ingresa la nueva contraseña.'),
+            Length(min=14, max=128, message='La contraseña debe tener al menos 14 caracteres.')
+        ]
+    )
+    confirm_password = PasswordField(
+        'Confirmar nueva contraseña',
+        validators=[
+            DataRequired(message='Confirma la nueva contraseña.'),
+        ]
+    )
+    submit = SubmitField('Guardar nueva contraseña')

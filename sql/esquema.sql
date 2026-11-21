@@ -1,6 +1,5 @@
 -- ==============================================================================
 -- PROYECTO: MEGASEG SEGURIDAD INTEGRAL - ESQUEMA LOCAL (SQLite)
--- Basado en la arquitectura profesional de NEXODIGITAL
 -- ==============================================================================
 
 -- 1. TABLA DE ROLES DEL SISTEMA (RBAC)
@@ -121,3 +120,25 @@ CREATE INDEX IF NOT EXISTS idx_logs_fecha ON logs_actividad (fecha DESC);
 CREATE INDEX IF NOT EXISTS idx_logs_usuario ON logs_actividad (usuario_id);
 CREATE INDEX IF NOT EXISTS idx_facturas_numero ON facturas (numero_factura);
 CREATE INDEX IF NOT EXISTS idx_facturas_sri ON facturas (estado_sri);
+
+CREATE TABLE IF NOT EXISTS resenas (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    servicio_id INTEGER REFERENCES servicios(id) ON DELETE SET NULL,
+    nombre VARCHAR(100) NOT NULL,
+    comentario TEXT NOT NULL,
+    calificacion INTEGER NOT NULL CHECK (calificacion BETWEEN 1 AND 5),
+    aprobada INTEGER NOT NULL DEFAULT 0,
+    creada_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_resenas_aprobada_fecha
+ON resenas(aprobada, creada_en DESC);
+
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    token_hash VARCHAR(64) NOT NULL UNIQUE,
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expira_en TIMESTAMP NOT NULL,
+    usado_en TIMESTAMP
+);

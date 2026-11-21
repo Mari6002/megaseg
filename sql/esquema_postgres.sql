@@ -1,6 +1,5 @@
 -- ==============================================================================
 -- PROYECTO: MEGASEG SEGURIDAD INTEGRAL - ESQUEMA DE BASE DE DATOS (PostgreSQL)
--- Arquitectura de Software Empresarial inspirada en el Ecosistema NEXODIGITAL
 -- ==============================================================================
 -- Instrucciones de Ejecución:
 -- 1. En pgAdmin: Crear la base de datos 'megaseg' (o tu BD en Render/Supabase/Neon).
@@ -25,7 +24,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     id SERIAL PRIMARY KEY,
     usuario VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    rol VARCHAR(50) NOT NULL DEFAULT 'Cliente',
+    rol_id INTEGER NOT NULL REFERENCES roles(id),
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(120),
     telefono VARCHAR(50),
@@ -64,6 +63,7 @@ CREATE TABLE IF NOT EXISTS servicios (
     modalidad_pago TEXT,
     ficha_tecnica TEXT,
     whatsapp_msg TEXT,
+    campos_extra JSONB NOT NULL DEFAULT '[]'::jsonb,
     
     creado_en TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
@@ -73,12 +73,10 @@ CREATE TABLE IF NOT EXISTS servicios (
 -- ==============================================================================
 CREATE TABLE IF NOT EXISTS logs_actividad (
     id SERIAL PRIMARY KEY,
-    usuario_id INT REFERENCES usuarios(id) ON DELETE SET NULL,
-    usuario_nombre VARCHAR(100),
-    rol VARCHAR(50),
+    usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE SET NULL,
     accion VARCHAR(100) NOT NULL,
     entidad VARCHAR(50) NOT NULL,
-    entidad_id VARCHAR(50),
+    entidad_id INTEGER,
     detalles TEXT,
     ip VARCHAR(45),
     fecha TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
@@ -134,6 +132,63 @@ CREATE INDEX IF NOT EXISTS idx_logs_usuario ON logs_actividad (usuario_id);
 CREATE INDEX IF NOT EXISTS idx_facturas_numero ON facturas (numero_factura);
 CREATE INDEX IF NOT EXISTS idx_facturas_sri ON facturas (estado_sri);
 CREATE INDEX IF NOT EXISTS idx_facturas_cliente ON facturas (cliente_identificacion);
+
+CREATE TABLE IF NOT EXISTS consultas_servicios (
+    id SERIAL PRIMARY KEY,
+    servicio_id INTEGER REFERENCES servicios(id),
+    termino_busqueda VARCHAR(255),
+    ip VARCHAR(45),
+    fecha TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_consultas_ip ON consultas_servicios(ip);
+
+CREATE TABLE IF NOT EXISTS solicitudes_cotizacion (
+    id SERIAL PRIMARY KEY,
+    servicio_id INTEGER REFERENCES servicios(id),
+    nombre_cliente VARCHAR(150),
+    telefono VARCHAR(50),
+    email VARCHAR(120),
+    mensaje TEXT,
+    estado VARCHAR(20) DEFAULT 'Pendiente',
+    fecha TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS sesiones (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
+    fecha_inicio TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    fecha_fin TIMESTAMPTZ,
+    ip VARCHAR(45),
+    user_agent TEXT
+);
+
+CREATE TABLE IF NOT EXISTS resenas (
+    id SERIAL PRIMARY KEY,
+    servicio_id INTEGER REFERENCES servicios(id) ON DELETE SET NULL,
+    nombre VARCHAR(100) NOT NULL,
+    comentario TEXT NOT NULL CHECK (char_length(comentario) BETWEEN 10 AND 1000),
+    calificacion SMALLINT NOT NULL CHECK (calificacion BETWEEN 1 AND 5),
+    aprobada BOOLEAN NOT NULL DEFAULT FALSE,
+    creada_en TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_resenas_aprobada_fecha
+ON resenas(aprobada, creada_en DESC);
+
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    token_hash VARCHAR(64) NOT NULL UNIQUE,
+    creado_en TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expira_en TIMESTAMPTZ NOT NULL,
+    usado_en TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_password_reset_usuario
+ON password_reset_tokens(usuario_id);
+
+CREATE INDEX IF NOT EXISTS idx_servicios_campos_extra
+ON servicios USING gin (campos_extra);
 
 -- ==============================================================================
 -- DATOS INICIALES (SEEDS PARA PRODUCCIÓN / DESARROLLO)

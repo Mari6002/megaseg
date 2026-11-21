@@ -1,6 +1,6 @@
 /* ==============================================================================
    PROYECTO: MEGASEG SEGURIDAD INTEGRAL - SCRIPT DE INTERACTIVIDAD (JS)
-   Arquitectura Inspirada en NexoDigital: Búsqueda en vivo, filtros, WhatsApp
+   Interactividad Megaseg: Búsqueda en vivo, filtros, WhatsApp
    y Control Interactivo "Ver Más / Ver Menos Detalles"
    ============================================================================== */
 
@@ -187,7 +187,13 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             textoWsp += `\n_Mensaje generado desde el portal web oficial de Megaseg._`;
 
-            const urlWsp = `https://wa.me/593982900705?text=${encodeURIComponent(textoWsp)}`;
+            const whatsapp = formCotizador.dataset.whatsapp;
+            if (!whatsapp) {
+                alert("No fue posible obtener el número de WhatsApp de contacto.");
+                return;
+            }
+
+            const urlWsp = `https://wa.me/${whatsapp}?text=${encodeURIComponent(textoWsp)}`;
             window.open(urlWsp, "_blank");
         });
     }

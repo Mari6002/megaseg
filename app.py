@@ -1,6 +1,5 @@
 # ==============================================================================
 # PROYECTO: MEGASEG SEGURIDAD INTEGRAL - CONTROLADOR PRINCIPAL FLASK (BACKEND)
-# Arquitectura y Funcionamiento Inspirado en NexoDigital
 # ==============================================================================
 # Este archivo contiene la configuración central del servidor y los controladores
 # (rutas y vistas) que gestionan la lógica de negocio para:
@@ -13,6 +12,10 @@
 # ==============================================================================
 
 import os
+import json
+import unicodedata
+import hashlib
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -21,24 +24,36 @@ load_dotenv(Path(__file__).resolve().parent / '.env')
 from urllib.parse import urlsplit
 from uuid import uuid4
 from functools import wraps
-from flask import Flask, render_template, redirect, url_for, flash, request
+from flask import Flask, render_template, redirect, url_for, flash, request, send_from_directory
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from werkzeug.exceptions import RequestEntityTooLarge
 from werkzeug.utils import secure_filename
+from werkzeug.middleware.proxy_fix import ProxyFix
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
+import smtplib
+from email.message import EmailMessage
 
 # Módulos del Sistema
-from conexion.conexion import close_db_connection
+from conexion.conexion import close_db_connection, get_db_connection
 from models import User
-from forms.login_form import LoginForm
+from forms.login_form import LoginForm, RecuperarPasswordForm, NuevaPasswordForm
 from forms.servicio_form import ServicioForm
 from forms.registro_form import RegistroForm
-from repositories import servicio_repository, auditoria_repository, usuario_repository
+from repositories import (
+    servicio_repository,
+    auditoria_repository,
+    usuario_repository,
+    resenas_repository,
+)
 
 # ------------------------------------------------------------------------------
 # INICIALIZACIÓN DE LA APLICACIÓN FLASK
 # ------------------------------------------------------------------------------
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
 # Clave secreta para sesiones y formularios Flask-WTF con CSRF
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
@@ -51,12 +66,26 @@ app.config['SESSION_COOKIE_SECURE'] = os.getenv('SESSION_COOKIE_SECURE', '').low
 app.config['MAX_CONTENT_LENGTH'] = 6 * 1024 * 1024
 csrf = CSRFProtect(app)
 
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    storage_uri=os.getenv('RATELIMIT_STORAGE_URL', 'memory://'),
+    default_limits=[],
+)
+
+UPLOAD_DIR = Path(os.getenv('UPLOAD_DIR')).resolve() if os.getenv('UPLOAD_DIR') else None
+if UPLOAD_DIR:
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
 
 def guardar_imagen_subida(archivo):
     """Guarda una imagen validada en una carpeta pública con nombre único."""
     nombre_seguro = secure_filename(archivo.filename)
     extension = Path(nombre_seguro).suffix.lower()
     nombre_archivo = f'{uuid4().hex}{extension}'
+    if os.getenv('UPLOAD_DIR'):
+        archivo.save(UPLOAD_DIR / nombre_archivo)
+        return f'/media/catalogo/{nombre_archivo}'
     carpeta_imagenes = Path(app.static_folder) / 'imagenes' / 'catalogo'
     carpeta_imagenes.mkdir(parents=True, exist_ok=True)
     archivo.save(carpeta_imagenes / nombre_archivo)
@@ -99,6 +128,95 @@ def es_destino_interno(destino):
         and '\n' not in destino
     )
 
+
+def limpiar_texto_usuario(texto, longitud_maxima):
+    """Normaliza Unicode, conserva saltos y elimina controles incompatibles."""
+    if texto is None:
+        return ''
+    texto = unicodedata.normalize('NFC', str(texto))
+    texto = texto.replace('\r\n', '\n').replace('\r', '\n')
+    texto = ''.join(
+        caracter
+        for caracter in texto
+        if caracter in '\t\n' or unicodedata.category(caracter) != 'Cc'
+    )
+    lineas = [linea.strip(' \t') for linea in texto.strip().split('\n')]
+    texto_limpio = '\n'.join(lineas)
+    return texto_limpio[:longitud_maxima]
+
+
+def obtener_serializador_recuperacion():
+    clave = os.getenv('PASSWORD_RESET_SECRET') or app.config['SECRET_KEY']
+    return URLSafeTimedSerializer(clave, salt='megaseg-recuperacion-password')
+
+
+def enviar_correo_recuperacion(destino, enlace):
+    """Envía el enlace por SMTP; devuelve False si el correo no está configurado."""
+    host = (os.getenv('SMTP_HOST') or '').strip()
+    remitente = (os.getenv('MAIL_FROM') or '').strip()
+    if not host or not remitente:
+        return False
+
+    mensaje = EmailMessage()
+    mensaje['Subject'] = 'Recuperación de contraseña - Grupo Megaseg'
+    mensaje['From'] = remitente
+    mensaje['To'] = destino
+    mensaje.set_content(
+        'Hola,\n\n'
+        'Recibimos una solicitud para restablecer tu contraseña de Megaseg.\n'
+        f'Abre este enlace en los próximos 30 minutos:\n{enlace}\n\n'
+        'Si no solicitaste este cambio, puedes ignorar este correo.\n'
+    )
+
+    puerto = int(os.getenv('SMTP_PORT', '587'))
+    usuario = os.getenv('SMTP_USERNAME') or ''
+    clave = os.getenv('SMTP_PASSWORD') or ''
+    uso_tls = os.getenv('SMTP_USE_TLS', 'true').lower() in ('1', 'true', 'yes')
+
+    with smtplib.SMTP(host, puerto, timeout=15) as smtp:
+        smtp.ehlo()
+        if uso_tls:
+            smtp.starttls()
+            smtp.ehlo()
+        if usuario:
+            smtp.login(usuario, clave)
+        smtp.send_message(mensaje)
+    return True
+
+
+@app.route('/media/catalogo/<path:nombre_archivo>')
+def media_catalogo(nombre_archivo):
+    """Sirve imágenes locales o desde el disco persistente configurado."""
+    carpeta = UPLOAD_DIR or (Path(app.static_folder) / 'imagenes' / 'catalogo')
+    return send_from_directory(carpeta, nombre_archivo)
+
+
+@app.route('/healthz')
+def healthz():
+    """Chequeo simple de disponibilidad de aplicación y PostgreSQL."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT 1')
+        cursor.fetchone()
+        cursor.close()
+        return {'status': 'ok'}, 200
+    except Exception:
+        return {'status': 'error'}, 503
+
+
+def campos_extra_desde_peticion():
+    """Convierte pares título/detalle del formulario en una lista segura para JSONB."""
+    titulos = request.form.getlist('campo_extra_titulo')
+    detalles = request.form.getlist('campo_extra_detalle')
+    campos = []
+    for titulo, detalle in zip(titulos, detalles):
+        titulo = limpiar_texto_usuario(titulo, 100)
+        detalle = limpiar_texto_usuario(detalle, 2000)
+        if titulo and detalle:
+            campos.append({'titulo': titulo, 'detalle': detalle})
+    return json.dumps(campos, ensure_ascii=False)
+
 # ------------------------------------------------------------------------------
 # CONFIGURACIÓN DE FLASK-LOGIN
 # ------------------------------------------------------------------------------
@@ -122,7 +240,8 @@ def imagen_supera_limite(error):
 def load_user(user_id):
     """Carga la instancia de usuario activa para Flask-Login."""
     try:
-        return User.get_by_id(int(user_id))
+        user = User.get_by_id(int(user_id))
+        return user if user and user.is_active else None
     except Exception:
         return None
 
@@ -147,7 +266,7 @@ def inject_empresa_info():
             'nombre': 'Grupo de Seguridad Megaseg Cía. Ltda.',
             'siglas': 'MEGASEG LTDA.',
             'ruc': '2191726354001',
-            'ubicacion': 'Calle Jorge Añazco 117 y Vía Colombia, Lago Agrio, Sucumbíos',
+            'ubicacion': 'Calle José María Urbina y Tungurahua, Ref: A 3 cuadras del Hospital del IESS, Barrio: Las Garzas., Lago Agrio, Provincia de Sucumbíos, Ecuador',
             'telefono': '+593 98 290 0705',
             'telefono_fijo': '(06) 283-0000',
             'whatsapp': '593982900705',
@@ -206,7 +325,16 @@ def inicio():
     Muestra presentación corporativa, misión/visión, servicios destacados y cotizador.
     """
     servicios_destacados = servicio_repository.obtener_destacados()
-    return render_template('index.html', servicios_destacados=servicios_destacados)
+    resenas = resenas_repository.obtener_aprobadas(limite=6)
+    resumen_resenas = resenas_repository.obtener_resumen()
+    servicios_resenas = servicio_repository.listar_servicios(limite=100)
+    return render_template(
+        'index1.html',
+        servicios_destacados=servicios_destacados,
+        resenas=resenas,
+        resumen_resenas=resumen_resenas,
+        servicios_resenas=servicios_resenas,
+    )
 
 
 # ==============================================================================
@@ -310,20 +438,21 @@ def nuevo_servicio():
 
         nuevo_id = servicio_repository.crear_servicio({
             'tipo_servicio_id': form.tipo_servicio_id.data,
-            'nombre': form.nombre.data.strip(),
+            'nombre': limpiar_texto_usuario(form.nombre.data, 150),
             'precio_base': float(form.precio.data or 0.0),
             'imagen': imagen_val,
-            'descripcion': form.descripcion.data.strip(),
+            'descripcion': limpiar_texto_usuario(form.descripcion.data, 1000),
             'disponible': 1 if form.disponible.data else 0,
             'es_producto': int(form.es_producto.data),
             'destacado': 1 if form.destacado.data else 0,
-            'tipo_producto': (form.tipo_producto.data or '').strip(),
-            'garantia': (form.garantia.data or '').strip(),
-            'zona_cobertura': (form.zona_cobertura.data or '').strip(),
-            'disponibilidad_atencion': (form.disponibilidad_atencion.data or '').strip(),
-            'modalidad_pago': (form.modalidad_pago.data or '').strip(),
-            'ficha_tecnica': (form.ficha_tecnica.data or '').strip(),
-            'whatsapp_msg': (form.whatsapp_msg.data or '').strip()
+            'tipo_producto': limpiar_texto_usuario(form.tipo_producto.data, 100),
+            'garantia': limpiar_texto_usuario(form.garantia.data, 255),
+            'zona_cobertura': limpiar_texto_usuario(form.zona_cobertura.data, 255),
+            'disponibilidad_atencion': limpiar_texto_usuario(form.disponibilidad_atencion.data, 255),
+            'modalidad_pago': limpiar_texto_usuario(form.modalidad_pago.data, 255),
+            'ficha_tecnica': limpiar_texto_usuario(form.ficha_tecnica.data, 2000),
+            'whatsapp_msg': limpiar_texto_usuario(form.whatsapp_msg.data, 255),
+            'campos_extra': campos_extra_desde_peticion()
         })
 
         # Auditoría del sistema
@@ -346,6 +475,7 @@ def nuevo_servicio():
         form=form,
         editando=False,
         imagen_actual='',
+        campos_extra=[],
         imagen_previa=url_imagen_actual(form.imagen.data)
     )
 
@@ -383,20 +513,21 @@ def editar_servicio(id):
 
         servicio_repository.actualizar_servicio(id, {
             'tipo_servicio_id': form.tipo_servicio_id.data,
-            'nombre': form.nombre.data.strip(),
+            'nombre': limpiar_texto_usuario(form.nombre.data, 150),
             'precio_base': float(form.precio.data or 0.0),
             'imagen': imagen_val,
-            'descripcion': form.descripcion.data.strip(),
+            'descripcion': limpiar_texto_usuario(form.descripcion.data, 1000),
             'disponible': 1 if form.disponible.data else 0,
             'es_producto': int(form.es_producto.data),
             'destacado': 1 if form.destacado.data else 0,
-            'tipo_producto': (form.tipo_producto.data or '').strip(),
-            'garantia': (form.garantia.data or '').strip(),
-            'zona_cobertura': (form.zona_cobertura.data or '').strip(),
-            'disponibilidad_atencion': (form.disponibilidad_atencion.data or '').strip(),
-            'modalidad_pago': (form.modalidad_pago.data or '').strip(),
-            'ficha_tecnica': (form.ficha_tecnica.data or '').strip(),
-            'whatsapp_msg': (form.whatsapp_msg.data or '').strip()
+            'tipo_producto': limpiar_texto_usuario(form.tipo_producto.data, 100),
+            'garantia': limpiar_texto_usuario(form.garantia.data, 255),
+            'zona_cobertura': limpiar_texto_usuario(form.zona_cobertura.data, 255),
+            'disponibilidad_atencion': limpiar_texto_usuario(form.disponibilidad_atencion.data, 255),
+            'modalidad_pago': limpiar_texto_usuario(form.modalidad_pago.data, 255),
+            'ficha_tecnica': limpiar_texto_usuario(form.ficha_tecnica.data, 2000),
+            'whatsapp_msg': limpiar_texto_usuario(form.whatsapp_msg.data, 255),
+            'campos_extra': campos_extra_desde_peticion()
         })
 
         # Auditoría del sistema
@@ -437,6 +568,7 @@ def editar_servicio(id):
         form=form,
         editando=True,
         imagen_actual=url_imagen_actual(servicio.get('imagen')),
+        campos_extra=servicio.get('campos_extra') or [],
         imagen_previa=(
             url_imagen_actual(form.imagen.data)
             if form.imagen.data
@@ -500,6 +632,76 @@ def admin_logs():
         busqueda=q,
         accion_sel=accion
     )
+
+
+@app.route('/resenas/nueva', methods=['POST'])
+@limiter.limit('5 per hour')
+def nueva_resena():
+    nombre = limpiar_texto_usuario(request.form.get('nombre'), 100)
+    comentario = limpiar_texto_usuario(request.form.get('comentario'), 1000)
+    servicio_id_raw = (request.form.get('servicio_id') or '').strip()
+    servicio_id = int(servicio_id_raw) if servicio_id_raw.isdigit() else None
+    try:
+        calificacion = int(request.form.get('calificacion', 0))
+    except (TypeError, ValueError):
+        calificacion = 0
+
+    if len(nombre) < 2 or len(nombre) > 100:
+        flash('Ingresa tu nombre con entre 2 y 100 caracteres.', 'danger')
+        return redirect(url_for('inicio') + '#resenas')
+    if len(comentario) < 10 or len(comentario) > 1000:
+        flash('La reseña debe tener entre 10 y 1000 caracteres.', 'danger')
+        return redirect(url_for('inicio') + '#resenas')
+    if calificacion not in range(1, 6):
+        flash('Selecciona una calificación de 1 a 5 estrellas.', 'danger')
+        return redirect(url_for('inicio') + '#resenas')
+
+    if servicio_id is not None:
+        servicio = servicio_repository.obtener_servicio(servicio_id)
+        if not servicio:
+            flash('El servicio seleccionado no existe.', 'danger')
+            return redirect(url_for('inicio') + '#resenas')
+
+    resenas_repository.crear(nombre, comentario, calificacion, servicio_id)
+    flash('Tu reseña fue enviada y permanecerá pendiente hasta ser aprobada por Megaseg.', 'success')
+    return redirect(url_for('inicio') + '#resenas')
+
+
+@app.route('/admin/resenas')
+@login_required
+@admin_required
+def admin_resenas():
+    return render_template(
+        'admin_resenas.html',
+        resenas=resenas_repository.obtener_todas(),
+    )
+
+
+@app.route('/admin/resenas/<int:id>/aprobar', methods=['POST'])
+@login_required
+@admin_required
+def aprobar_resena(id):
+    resenas_repository.cambiar_aprobacion(id, True)
+    flash('La reseña fue aprobada y ya puede mostrarse públicamente.', 'success')
+    return redirect(url_for('admin_resenas'))
+
+
+@app.route('/admin/resenas/<int:id>/ocultar', methods=['POST'])
+@login_required
+@admin_required
+def ocultar_resena(id):
+    resenas_repository.cambiar_aprobacion(id, False)
+    flash('La reseña fue ocultada.', 'info')
+    return redirect(url_for('admin_resenas'))
+
+
+@app.route('/admin/resenas/<int:id>/eliminar', methods=['POST'])
+@login_required
+@admin_required
+def eliminar_resena(id):
+    resenas_repository.eliminar(id)
+    flash('La reseña fue eliminada.', 'warning')
+    return redirect(url_for('admin_resenas'))
 
 
 # ==============================================================================
@@ -617,8 +819,8 @@ def registro():
     form = RegistroForm()
 
     if form.validate_on_submit():
-        usuario_limpio = form.usuario.data.strip()
-        email_limpio = form.email.data.strip()
+        usuario_limpio = limpiar_texto_usuario(form.usuario.data, 40)
+        email_limpio = limpiar_texto_usuario(form.email.data, 120)
 
         if usuario_repository.existe_usuario(usuario_limpio):
             flash('El nombre de usuario ya se encuentra registrado. Elige otro.', 'danger')
@@ -634,7 +836,7 @@ def registro():
 
         nuevo_id = usuario_repository.crear_usuario({
             'usuario': usuario_limpio,
-            'nombre': form.nombre.data.strip(),
+            'nombre': limpiar_texto_usuario(form.nombre.data, 100),
             'email': email_limpio,
             'telefono': (form.telefono.data or '').strip(),
             'password': form.password.data,
@@ -672,7 +874,143 @@ def registro():
     return render_template('registro.html', form=form)
 
 
+@app.route('/recuperar-password', methods=['GET', 'POST'])
+@limiter.limit('3 per hour')
+def recuperar_password():
+    """Solicita un enlace temporal sin revelar si la cuenta existe."""
+    form = RecuperarPasswordForm()
+
+    if form.validate_on_submit():
+        dato = limpiar_texto_usuario(form.usuario_o_email.data, 120)
+        valor = dato.lower()
+        usuario = usuario_repository.obtener_usuario_por_usuario_o_email(valor)
+
+        if usuario and usuario.get('email') and usuario.get('activo'):
+            serializador = obtener_serializador_recuperacion()
+            token = serializador.dumps({'usuario_id': usuario['id']})
+            token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+            expira_en = datetime.now(timezone.utc) + timedelta(minutes=30)
+            try:
+                conn_reset = get_db_connection()
+                cursor_reset = conn_reset.cursor()
+                cursor_reset.execute(
+                    'UPDATE password_reset_tokens SET usado_en = %s WHERE usuario_id = %s AND usado_en IS NULL',
+                    (datetime.now(timezone.utc), usuario['id'])
+                )
+                cursor_reset.execute(
+                    '''
+                    INSERT INTO password_reset_tokens (usuario_id, token_hash, expira_en)
+                    VALUES (%s, %s, %s)
+                    ''',
+                    (usuario['id'], token_hash, expira_en)
+                )
+                conn_reset.commit()
+                cursor_reset.close()
+            except Exception as error:
+                app.logger.error('No se pudo registrar el token de recuperación: %s', type(error).__name__)
+            enlace = url_for(
+                'restablecer_password',
+                token=token,
+                _external=True,
+                _scheme='https' if os.getenv('SESSION_COOKIE_SECURE', '').lower() in ('1', 'true', 'yes') else 'http'
+            )
+            try:
+                enviar_correo_recuperacion(usuario['email'], enlace)
+            except Exception as error:
+                app.logger.error('No se pudo enviar el correo de recuperación: %s', type(error).__name__)
+
+        flash(
+            'Si existe una cuenta activa asociada a ese dato, recibirás un enlace válido por 30 minutos.',
+            'info'
+        )
+        return redirect(url_for('login'))
+
+    return render_template('recuperar_password.html', form=form)
+
+
+@app.route('/restablecer-password/<token>', methods=['GET', 'POST'])
+@limiter.limit('5 per hour')
+def restablecer_password(token):
+    """Valida un token de un solo uso y permite cambiar la contraseña."""
+    try:
+        datos = obtener_serializador_recuperacion().loads(token, max_age=1800)
+        usuario_id = int(datos['usuario_id'])
+    except (BadSignature, SignatureExpired, KeyError, TypeError, ValueError):
+        flash('El enlace es inválido o expiró. Solicita uno nuevo.', 'danger')
+        return redirect(url_for('recuperar_password'))
+
+    token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+    try:
+        conn_reset = get_db_connection()
+        cursor_reset = conn_reset.cursor()
+        cursor_reset.execute(
+            '''
+            SELECT id FROM password_reset_tokens
+            WHERE usuario_id = %s
+              AND token_hash = %s
+              AND usado_en IS NULL
+              AND expira_en > %s
+            ''',
+            (usuario_id, token_hash, datetime.now(timezone.utc))
+        )
+        token_registrado = cursor_reset.fetchone()
+        if not token_registrado:
+            cursor_reset.close()
+            flash('El enlace ya fue utilizado o expiró. Solicita uno nuevo.', 'danger')
+            return redirect(url_for('recuperar_password'))
+    except Exception:
+        cursor_reset.close()
+        flash('No se pudo validar el enlace de recuperación.', 'danger')
+        return redirect(url_for('recuperar_password'))
+
+    usuario = usuario_repository.obtener_usuario_por_id(usuario_id)
+    if not usuario or not usuario['activo']:
+        flash('La cuenta no está disponible para recuperar su contraseña.', 'danger')
+        return redirect(url_for('login'))
+
+    form = NuevaPasswordForm()
+    if form.validate_on_submit():
+        if form.password.data != form.confirm_password.data:
+            flash('Las contraseñas no coinciden.', 'danger')
+            return render_template('restablecer_password.html', form=form)
+
+        if len(form.password.data) < 14:
+            flash('La contraseña debe tener al menos 14 caracteres.', 'danger')
+            return render_template('restablecer_password.html', form=form)
+
+        from security.passwords import hash_password
+        cursor_reset.execute(
+            'UPDATE usuarios SET password = %s WHERE id = %s',
+            (hash_password(form.password.data), usuario_id)
+        )
+        cursor_reset.execute(
+            '''
+            UPDATE password_reset_tokens
+            SET usado_en = %s
+            WHERE id = %s AND usado_en IS NULL
+            ''',
+            (datetime.now(timezone.utc), token_registrado['id'])
+        )
+        conn_reset.commit()
+        cursor_reset.close()
+        auditoria_repository.registrar_log(
+            usuario_id=usuario_id,
+            usuario_nombre=usuario['nombre'],
+            rol=usuario['rol'],
+            accion='RECUPERAR_PASSWORD',
+            entidad='auth',
+            entidad_id=usuario_id,
+            detalles='Restableció su contraseña mediante un enlace válido enviado por correo.',
+            ip=request.remote_addr
+        )
+        flash('Tu contraseña fue cambiada correctamente. Ya puedes iniciar sesión.', 'success')
+        return redirect(url_for('login'))
+
+    return render_template('restablecer_password.html', form=form)
+
+
 @app.route('/login', methods=['GET', 'POST'])
+@limiter.limit('10 per minute')
 def login():
     """
     Página de inicio de sesión con validación, Flask-Login y registro de auditoría.
